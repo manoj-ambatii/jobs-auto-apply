@@ -7,11 +7,14 @@
     "start": "node src/cli.js --help",
     "apply:linkedin": "node src/cli.js apply --platform linkedin",
     "apply:naukri": "node src/cli.js apply --platform naukri",
+    "apply:external": "node src/cli.js apply --platform external",
     "apply:all": "node src/cli.js apply --platform all",
     "apply:linkedin:headed": "node src/cli.js apply --platform linkedin --mode headed",
     "apply:naukri:headed": "node src/cli.js apply --platform naukri --mode headed",
+    "apply:external:headed": "node src/cli.js apply --platform external --mode headed",
     "apply:linkedin:headless": "node src/cli.js apply --platform linkedin --mode headless",
     "apply:naukri:headless": "node src/cli.js apply --platform naukri --mode headless",
+    "apply:external:headless": "node src/cli.js apply --platform external --mode headless",
     "tracker:stats": "node src/cli.js stats",
     "tracker:list": "node src/cli.js list",
     "tracker:export": "node src/cli.js export",
@@ -34,6 +37,7 @@
     "@playwright/mcp": "^0.0.70",
     "commander": "^12.1.0",
     "dotenv": "^16.4.5",
+    "googleapis": "^182.0.0",
     "playwright": "^1.47.0",
     "xlsx": "^0.18.5"
   }

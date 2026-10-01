@@ -13,6 +13,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('../../config');
 const tracker = require('../tracker/file-tracker');
+const externalApplicant = require('./external-applicant');
 
 const BLACKLIST_TITLE_REGEX = /(?:\b(python|django|flask|fastapi|pandas|pyspark|dot\s*net|dotnet|\.net|c#|c\+\+|php|laravel|wordpress|ruby|rails|golang|go\s*developer|rust|ios|swift|objective-c|android|flutter|react\s*native|mobile\s*developer|qa\b|tester|testing|automation\s*test|sdet|devops|sre|cloud\s*engineer|aws\s*engineer|azure\s*engineer|salesforce|sap\b|mainframe|data\s*engineer|data\s*scientist|data\s*analyst|machine\s*learning|ai\s*engineer|deep\s*learning|nlp|computer\s*vision|big\s*data|etl|business\s*analyst|scrum\s*master|product\s*manager|sales|marketing|recruiter|hr\b|intern|internship|trainee|caller|telecaller|bpo|kpo|support)\b)/i;
 const WHITELIST_TITLE_REGEX = /\b(java\s*(?:developer|full\s*stack|backend|engineer|software)|spring\s*boot|full\s*stack|fullstack|node(?:\.js|\s*js)?\s*(?:developer|backend|engineer|software)|react(?:\.js|\s*js)?\s*(?:developer|full\s*stack|engineer)|mern\s*(?:stack|developer)|software\s*engineer.*(?:java|node|react|full\s*stack)|software\s*developer.*(?:java|node|react|full\s*stack))\b/i;
@@ -29,6 +30,8 @@ class NaukriApplicant {
     };
     this.candidate = config.candidate;
     this.creds = config.credentials.naukri;
+    this.externalApplicant = externalApplicant;
+    this.naukriQuotaExceeded = false;
   }
 
   sleep(ms) {
@@ -357,31 +360,22 @@ class NaukriApplicant {
 
     if (info.alreadyApplied) return { status: 'already_applied', notes: 'Already applied previously' };
 
-    // External job capture
+    // External company portal auto-apply
     if (!info.hasApply && info.hasCompany) {
-      let externalUrl = '';
-      const popupPromise = context.waitForEvent('page', { timeout: 8000 }).catch(() => null);
-      await page.evaluate(() => {
-        const btn = document.getElementById('company-site-button') ||
-          Array.from(document.querySelectorAll('button, a, div')).find((el) =>
-            /apply on company site|apply on website|company site|external site/i.test(el.innerText || el.getAttribute('title') || '')
-          );
-        btn?.click();
-      }).catch(() => {});
+      console.log(`  [Naukri] External company site detected. Attempting automated application on external ATS...`);
+      const extResult = await this.externalApplicant.applyFromNaukri(context, page, job);
+      return extResult;
+    }
 
-      const popup = await popupPromise;
-      if (popup) {
-        try {
-          await popup.waitForLoadState('domcontentloaded', { timeout: 6000 }).catch(() => {});
-          externalUrl = popup.url();
-          await popup.close();
-        } catch {}
-      }
-      if (!externalUrl || externalUrl === 'about:blank') externalUrl = job.url;
-      return { status: 'external', externalUrl, notes: 'Redirects to external company career portal' };
+    // If Naukri daily in-platform quota was already exceeded, skip in-platform job
+    if (this.naukriQuotaExceeded && info.hasApply) {
+      return { status: 'skipped', notes: 'Skipped - In-platform daily quota reached for today' };
     }
 
     if (!info.hasApply) return { status: 'skipped', notes: 'No apply button found' };
+
+    // Setup listener in case apply button triggers an external popup / career site redirect
+    const popupPromise = context.waitForEvent('page', { timeout: 4000 }).catch(() => null);
 
     // Click Apply
     const clickedApply = await page.evaluate(() => {
@@ -395,6 +389,15 @@ class NaukriApplicant {
     }).catch(() => false);
 
     if (!clickedApply) return { status: 'skipped', notes: 'Apply button click failed' };
+
+    const externalPopup = await popupPromise;
+    if (externalPopup) {
+      console.log('  [Naukri] Apply button opened external application window!');
+      const extResult = await this.externalApplicant.executeApplication(externalPopup, job);
+      await externalPopup.close().catch(() => {});
+      return extResult;
+    }
+
     await this.sleep(2500);
 
     // Handle interstitials & questionnaire dialogs (e.g. Relocation, Notice, Experience)
@@ -536,9 +539,19 @@ class NaukriApplicant {
                   company: job.company,
                   location: job.location,
                   applyUrl: job.url,
+                  externalUrl: result.externalUrl || '',
                   notes: result.notes,
                 });
-              } else if (result.status === 'external') {
+              } else if (result.status === 'already_applied') {
+                tracker.recordSkipped({
+                  platform: 'Naukri',
+                  title: job.title,
+                  company: job.company,
+                  location: job.location,
+                  applyUrl: job.url,
+                  notes: result.notes || 'Already applied previously',
+                });
+              } else if (result.status === 'external' || result.status === 'external_visited') {
                 tracker.recordExternal({
                   platform: 'Naukri',
                   title: job.title,
@@ -549,8 +562,16 @@ class NaukriApplicant {
                   notes: result.notes,
                 });
               } else if (result.status === 'quota_exceeded') {
-                console.log('⚠️ [Naukri] Daily apply quota reached for today! Halting Naukri run.');
-                return appliedCount;
+                this.naukriQuotaExceeded = true;
+                console.log('  ⚠️ [Naukri] Daily 1-click apply quota reached. Continuing scan to apply to external company portal jobs...');
+                tracker.recordSkipped({
+                  platform: 'Naukri',
+                  title: job.title,
+                  company: job.company,
+                  location: job.location,
+                  applyUrl: job.url,
+                  notes: 'Naukri daily 1-click apply quota reached',
+                });
               } else {
                 tracker.recordSkipped({
                   platform: 'Naukri',

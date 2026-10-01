@@ -18,6 +18,7 @@ const browserManager = require('./browser/browser-manager');
 const tracker = require('./tracker/file-tracker');
 const LinkedInApplicant = require('./platforms/linkedin');
 const NaukriApplicant = require('./platforms/naukri');
+const externalApplicant = require('./platforms/external-applicant');
 
 const program = new Command();
 
@@ -29,7 +30,7 @@ program
 program
   .command('apply')
   .description('Run automated job applications')
-  .option('-p, --platform <platform>', 'Platform to apply on: linkedin, naukri, all', 'all')
+  .option('-p, --platform <platform>', 'Platform to apply on: linkedin, naukri, external, all', 'all')
   .option('-m, --mode <mode>', 'Browser mode: headed (visible) or headless (silent)', 'headed')
   .option('-l, --limit <number>', 'Maximum applications for this run', String(config.search.targetApplications))
   .action(async (opts) => {
@@ -60,6 +61,13 @@ program
         limit,
       });
       await naukri.run();
+    }
+
+    if (platform === 'external' || platform === 'all') {
+      await externalApplicant.runBatch(browserManager, {
+        headless: isHeadless,
+        limit,
+      });
     }
 
     console.log('\nAll platform runs finished. Tracking files updated.');

@@ -17,33 +17,51 @@
     "authorizedInIndia": true,
     "requiresSponsorship": false,
     "linkedinUrl": "https://www.linkedin.com/in/manojambati2469/",
-    "githubUrl": "https://github.com/manoj-voltuswave"
+    "githubUrl": "https://github.com/manoj-voltuswave",
+    "portfolioUrl": "https://github.com/manoj-voltuswave",
+    "addressLine1": "Hyderabad, Telangana",
+    "address": "Hyderabad, Telangana, India",
+    "defaultPassword": "Manoj@2469"
   },
   "currentEmployment": {
     "employer": "Voltuswave Technologies India Pvt. Ltd.",
+    "company": "Voltuswave Technologies India Pvt. Ltd.",
     "title": "Full Stack Developer",
+    "role": "Full Stack Developer",
     "startDate": "2024-02-01",
-    "totalExperienceYears": "2.5"
+    "startYear": "2024",
+    "startMonth": "02",
+    "totalExperienceYears": "2.5",
+    "summary": "Full Stack Developer with 2.5 years of experience developing scalable web applications using React, Node.js, Java, Spring Boot, MySQL, and AWS."
   },
   "compensationAndNotice": {
     "currentCtcLakhs": "4.2",
+    "currentSalary": "420000",
     "expectedCtcLakhs": "10",
+    "expectedSalary": "1000000",
     "noticePeriodDays": "0",
     "noticePeriodLabel": "Immediate Joiner (0 days)",
+    "noticePeriodMonths": "0",
     "servingNotice": false,
     "hasOffersInHand": false
   },
   "preferences": {
     "openToRemote": true,
     "openToRelocate": true,
+    "willingToRelocate": "Yes",
     "preferredCities": ["Hyderabad", "Bengaluru", "Remote"]
   },
   "education": {
     "degree": "Bachelor of Engineering (B.E.)",
     "highestQualification": "B.E.",
     "branch": "Civil Engineering",
+    "fieldOfStudy": "Civil Engineering",
     "institution": "Chaitanya Bharathi Institute of Technology (CBIT)",
+    "school": "Chaitanya Bharathi Institute of Technology (CBIT)",
+    "university": "Chaitanya Bharathi Institute of Technology (CBIT)",
+    "startYear": "2019",
     "graduationYear": "2023",
+    "endYear": "2023",
     "gpa": "7.5"
   },
   "skillYears": {
