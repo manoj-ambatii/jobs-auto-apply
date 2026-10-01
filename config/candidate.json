@@ -1,0 +1,89 @@
+{
+  "identity": {
+    "name": "Manoj Ambati",
+    "firstName": "Manoj",
+    "lastName": "Ambati",
+    "email": "ambatimanoj2469@gmail.com",
+    "phone": "9347946872",
+    "countryCode": "+91",
+    "location": "Hyderabad",
+    "city": "Hyderabad",
+    "state": "Telangana",
+    "country": "India",
+    "postalCode": "500075",
+    "dateOfBirth": "2001-03-09",
+    "gender": "Male",
+    "maritalStatus": "Single",
+    "authorizedInIndia": true,
+    "requiresSponsorship": false,
+    "linkedinUrl": "https://www.linkedin.com/in/manojambati2469/",
+    "githubUrl": "https://github.com/manoj-voltuswave"
+  },
+  "currentEmployment": {
+    "employer": "Voltuswave Technologies India Pvt. Ltd.",
+    "title": "Full Stack Developer",
+    "startDate": "2024-02-01",
+    "totalExperienceYears": "2.5"
+  },
+  "compensationAndNotice": {
+    "currentCtcLakhs": "4.2",
+    "expectedCtcLakhs": "10",
+    "noticePeriodDays": "0",
+    "noticePeriodLabel": "Immediate Joiner (0 days)",
+    "servingNotice": false,
+    "hasOffersInHand": false
+  },
+  "preferences": {
+    "openToRemote": true,
+    "openToRelocate": true,
+    "preferredCities": ["Hyderabad", "Bengaluru", "Remote"]
+  },
+  "education": {
+    "degree": "Bachelor of Engineering (B.E.)",
+    "highestQualification": "B.E.",
+    "branch": "Civil Engineering",
+    "institution": "Chaitanya Bharathi Institute of Technology (CBIT)",
+    "graduationYear": "2023",
+    "gpa": "7.5"
+  },
+  "skillYears": {
+    "java": "2.5",
+    "spring": "2.5",
+    "spring boot": "2.5",
+    "microservices": "2.5",
+    "hibernate": "2.5",
+    "jpa": "2.5",
+    "backend": "2.5",
+    "frontend": "2.5",
+    "full stack": "2.5",
+    "fullstack": "2.5",
+    "mern": "2.5",
+    "mean": "2.5",
+    "react": "2.5",
+    "react.js": "2.5",
+    "node": "2.5",
+    "node.js": "2.5",
+    "express": "2.5",
+    "typescript": "2.5",
+    "javascript": "2.5",
+    "html": "2.5",
+    "css": "2.5",
+    "tailwind": "2.5",
+    "mysql": "2.5",
+    "sql": "2.5",
+    "aws": "2.5",
+    "docker": "2.5",
+    "git": "2.5",
+    "rest": "2.5",
+    "api": "2.5",
+    "jwt": "2.5",
+    "python": "1",
+    "defaultYears": "2.5"
+  },
+  "narrativeAnswers": {
+    "reasonForChange": "Looking for better growth and exposure to large-scale distributed systems.",
+    "goodFit": "2.5 years building production full-stack apps with React, TypeScript, Java/Node.js, and MySQL. End-to-end ownership across SDLC including AWS deployment, Docker, and CI/CD.",
+    "aboutSelf": "Full Stack Developer at Voltuswave Technologies with 2.5 years building scalable web apps using React, Java/Node.js, and relational databases. Experienced in shipping microservices and responsive user interfaces.",
+    "greatestStrength": "End-to-end ownership — comfortable across frontend, backend, database design, and cloud deployment."
+  }
+}
