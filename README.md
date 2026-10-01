@@ -100,34 +100,28 @@ JOB_SEARCH_LOCATIONS=Hyderabad, Bengaluru, Remote
 
 You can run automated job applications directly using npm scripts or the CLI:
 
-#### Headed Mode (Visible Browser - Recommended for First Run / Checking Session)
+#### Headed Mode (Visible Browser - Recommended for Real-Time Oversight)
 ```bash
-# Apply on both LinkedIn, Naukri, and External sites (Headed)
+# Apply on both LinkedIn and Naukri (Headed)
 npm run apply:all -- --mode headed
 
 # Apply on LinkedIn only (Headed)
 npm run apply:linkedin:headed
 
-# Apply on Naukri only (Headed - in-platform + external career portals)
+# Apply on Naukri only (Headed - applies in-platform + directly navigates to external sites and returns)
 npm run apply:naukri:headed
-
-# Apply on External Company Career Sites directly (Headed)
-npm run apply:external:headed
 ```
 
 #### Headless Mode (Silent Background Execution)
 ```bash
+# Apply on both (Headless)
+npm run apply:all -- --mode headless
+
 # Apply on LinkedIn only (Headless)
 npm run apply:linkedin:headless
 
 # Apply on Naukri only (Headless)
 npm run apply:naukri:headless
-
-# Apply on External Career Sites only (Headless)
-npm run apply:external:headless
-
-# Apply on all (Headless)
-npm run apply:all -- --mode headless
 ```
 
 #### Custom Limits & Platforms via CLI
@@ -137,9 +131,6 @@ node src/cli.js apply --platform linkedin --mode headed --limit 10
 
 # Apply to up to 30 jobs on Naukri in headed mode
 node src/cli.js apply --platform naukri --mode headed --limit 30
-
-# Apply to up to 20 external company career portals in headed mode
-node src/cli.js apply --platform external --mode headed --limit 20
 ```
 
 ---

@@ -43,76 +43,79 @@ class ExternalApplicant {
    * Apply to an external site originating from a Naukri job page
    */
   async applyFromNaukri(context, naukriPage, job) {
-    console.log(`  [ExternalApplicant] Launching external application for: ${job.title} @ ${job.company}`);
+    console.log(`  [ExternalApplicant] Resolving external portal for: ${job.title} @ ${job.company}`);
 
-    let externalPage = null;
     let externalUrl = '';
 
     try {
-      // Setup listener for popup tab before clicking company-site-button
-      const popupPromise = context.waitForEvent('page', { timeout: 12000 }).catch(() => null);
-
-      const clicked = await naukriPage.evaluate(() => {
+      // 1. Try reading direct href from company-site-button or link
+      externalUrl = await naukriPage.evaluate(() => {
         const btn = document.getElementById('company-site-button') ||
-          Array.from(document.querySelectorAll('button, a, div, span')).find((el) =>
-            /apply on company site|apply on website|company site|external site|apply now/i.test(
+          Array.from(document.querySelectorAll('a, button, div, span')).find((el) =>
+            /apply on company site|apply on website|company site|external site/i.test(
               el.innerText || el.getAttribute('title') || ''
             )
           );
         if (btn) {
-          btn.click();
-          return true;
+          const href = btn.href || btn.getAttribute('href') || btn.getAttribute('data-href') || '';
+          if (href && href.startsWith('http') && !href.includes('javascript:') && !href.includes('naukri.com/job-listings')) {
+            return href;
+          }
         }
-        return false;
-      }).catch(() => false);
+        return '';
+      }).catch(() => '');
 
-      if (clicked) {
-        externalPage = await popupPromise;
+      // 2. Click button to trigger navigation or popup
+      const popupPromise = context.waitForEvent('page', { timeout: 8000 }).catch(() => null);
+
+      await naukriPage.evaluate(() => {
+        const btn = document.getElementById('company-site-button') ||
+          Array.from(document.querySelectorAll('a, button, div, span')).find((el) =>
+            /apply on company site|apply on website|company site|external site|apply now/i.test(
+              el.innerText || el.getAttribute('title') || ''
+            )
+          );
+        btn?.click();
+      }).catch(() => {});
+
+      const popup = await popupPromise;
+      if (popup) {
+        try {
+          await popup.waitForLoadState('domcontentloaded', { timeout: 8000 }).catch(() => {});
+          await this.sleep(1500);
+          const popupUrl = popup.url();
+          if (popupUrl && popupUrl !== 'about:blank') {
+            externalUrl = popupUrl;
+          }
+          await popup.close().catch(() => {});
+        } catch {}
       }
 
-      // If no popup opened, check if current page navigated away from naukri.com
-      if (!externalPage) {
-        await this.sleep(3000);
-        if (!naukriPage.url().includes('naukri.com')) {
-          externalPage = naukriPage;
-        }
+      // 3. Check if naukriPage itself navigated away from naukri.com
+      await this.sleep(1500);
+      if (!naukriPage.url().includes('naukri.com')) {
+        externalUrl = naukriPage.url();
       }
 
-      // If still no external page, try reading href from the button
-      if (!externalPage) {
-        externalUrl = await naukriPage.evaluate(() => {
-          const btn = document.getElementById('company-site-button') ||
-            Array.from(document.querySelectorAll('button, a')).find((el) =>
-              /apply on company site|apply on website/i.test(el.innerText || '')
-            );
-          return btn ? (btn.href || btn.getAttribute('data-href') || '') : '';
-        }).catch(() => '');
-
-        if (externalUrl && externalUrl.startsWith('http')) {
-          externalPage = await context.newPage();
-          await externalPage.goto(externalUrl, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
-        }
-      }
-
-      if (!externalPage) {
+      if (!externalUrl || externalUrl === 'about:blank' || externalUrl.includes('naukri.com/job-listings')) {
         return {
           status: 'external',
-          notes: 'Could not open external company application URL',
+          notes: 'Could not resolve external company application URL',
         };
       }
 
-      await externalPage.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
-      await this.sleep(3000);
-      externalUrl = externalPage.url();
+      console.log(`  [ExternalApplicant] Directly navigating to external site: ${externalUrl}`);
 
-      console.log(`  [ExternalApplicant] Target portal opened: ${externalUrl}`);
-
-      const result = await this.executeApplication(externalPage, job);
-
-      // Clean up popup if it wasn't the main naukri page
-      if (externalPage !== naukriPage) {
-        await externalPage.close().catch(() => {});
+      // Directly navigate to the external site in the active browser window
+      if (naukriPage.url() !== externalUrl) {
+        await naukriPage.goto(externalUrl, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
+        await this.sleep(3000);
       }
+
+      // Execute application directly on that external company site
+      const result = await this.executeApplication(naukriPage, job);
+
+      console.log(`  [ExternalApplicant] Finished applying on external site. Coming back to Naukri to process next jobs...`);
 
       return {
         ...result,
@@ -120,9 +123,6 @@ class ExternalApplicant {
       };
     } catch (err) {
       console.log(`  [ExternalApplicant] Error during external apply: ${err.message}`);
-      if (externalPage && externalPage !== naukriPage) {
-        await externalPage.close().catch(() => {});
-      }
       return {
         status: 'failed',
         externalUrl: externalUrl || job.url,
