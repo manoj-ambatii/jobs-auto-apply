@@ -49,7 +49,8 @@
     "openToRemote": true,
     "openToRelocate": true,
     "willingToRelocate": "Yes",
-    "preferredCities": ["Hyderabad", "Bengaluru", "Remote"]
+    "preferredCities": ["Hyderabad", "Bengaluru", "Remote"],
+    "excludedCompanies": ["Infosys"]
   },
   "education": {
     "degree": "Bachelor of Engineering (B.E.)",

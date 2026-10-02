@@ -14,6 +14,14 @@ const { fetchLatestOtp } = require('../utils/gmail-otp-helper');
 
 const BLACKLIST_TITLE_REGEX = /(?:\b(python|django|flask|fastapi|pandas|pyspark|dot\s*net|dotnet|\.net|c#|c\+\+|php|laravel|wordpress|ruby|rails|golang|go\s*developer|rust|ios|swift|objective-c|android|flutter|react\s*native|mobile\s*developer|qa\b|tester|testing|automation\s*test|sdet|devops|sre|cloud\s*engineer|aws\s*engineer|azure\s*engineer|salesforce|sap\b|mainframe|data\s*engineer|data\s*scientist|data\s*analyst|machine\s*learning|ai\s*engineer|deep\s*learning|nlp|computer\s*vision|big\s*data|etl|business\s*analyst|scrum\s*master|product\s*manager|sales|marketing|recruiter|hr\b|intern|internship|trainee|caller|telecaller|bpo|kpo|support)\b)/i;
 const WHITELIST_TITLE_REGEX = /\b(java\s*(?:developer|full\s*stack|backend|engineer|software)|spring\s*boot|full\s*stack|fullstack|node(?:\.js|\s*js)?\s*(?:developer|backend|engineer|software)|react(?:\.js|\s*js)?\s*(?:developer|full\s*stack|engineer)|mern\s*(?:stack|developer)|software\s*engineer.*(?:java|node|react|full\s*stack)|software\s*developer.*(?:java|node|react|full\s*stack))\b/i;
+const BLACKLIST_COMPANY_REGEX = /\b(infosys|infosys\s*bpm|infosys\s*limited)\b/i;
+
+function isBlacklistedCompany(company = '', title = '', url = '') {
+  const text = `${company || ''} ${title || ''} ${url || ''}`.toLowerCase();
+  if (BLACKLIST_COMPANY_REGEX.test(text)) return true;
+  const list = config.search?.blacklistedCompanies || ['infosys'];
+  return list.some((c) => text.includes(c));
+}
 
 class ExternalApplicant {
   constructor() {
@@ -43,6 +51,11 @@ class ExternalApplicant {
    * Apply to an external site originating from a Naukri job page
    */
   async applyFromNaukri(context, naukriPage, job) {
+    if (isBlacklistedCompany(job.company, job.title, job.url)) {
+      console.log(`  [ExternalApplicant] Skipping external apply at excluded company: ${job.company}`);
+      return { status: 'skipped', notes: `Excluded company: ${job.company || 'Infosys'} (interview already completed)` };
+    }
+
     console.log(`  [ExternalApplicant] Resolving external portal for: ${job.title} @ ${job.company}`);
 
     let externalUrl = '';
@@ -136,6 +149,15 @@ class ExternalApplicant {
    */
   async applyDirectUrl(context, job) {
     const targetUrl = job.externalUrl || job.url;
+    if (isBlacklistedCompany(job.company, job.title, targetUrl)) {
+      console.log(`  [ExternalApplicant] Skipping external apply at excluded company: ${job.company}`);
+      return {
+        status: 'skipped',
+        externalUrl: targetUrl,
+        notes: `Excluded company: ${job.company || 'Infosys'} (interview already completed)`,
+      };
+    }
+
     console.log(`\n[ExternalApplicant] Navigating to: ${job.title} @ ${job.company} (${targetUrl})`);
 
     const page = await context.newPage();
@@ -169,7 +191,14 @@ class ExternalApplicant {
     const ats = this.detectAts(currentUrl, await page.content().catch(() => ''));
     console.log(`  [ExternalApplicant] Detected ATS Engine: ${ats.toUpperCase()}`);
 
-    // 2. Check if already applied
+    // 2. Check if blacklisted company portal
+    const pageDetails = await page.evaluate(() => (document.title || '') + ' ' + (document.body?.innerText?.slice(0, 1000) || '')).catch(() => '');
+    if (isBlacklistedCompany(job.company, pageDetails, currentUrl)) {
+      console.log(`  [ExternalApplicant] Detected excluded company portal (${job.company || 'Infosys'}). Skipping.`);
+      return { status: 'skipped', notes: `Excluded company: ${job.company || 'Infosys'} (interview already completed)` };
+    }
+
+    // 3. Check if already applied
     const alreadyApplied = await page.evaluate(() => {
       const text = (document.body ? document.body.innerText : '').toLowerCase();
       return /already applied|application submitted|thank you for applying|you have already submitted/i.test(text);
@@ -705,6 +734,7 @@ class ExternalApplicant {
       const title = j.title || '';
       if (BLACKLIST_TITLE_REGEX.test(title)) continue;
       if (!WHITELIST_TITLE_REGEX.test(title)) continue;
+      if (isBlacklistedCompany(j.company, title, targetUrl)) continue;
 
       const currentStatus = tracker.getStatus(targetUrl);
       if (currentStatus === 'APPLIED') continue;

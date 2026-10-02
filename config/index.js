@@ -59,6 +59,10 @@ module.exports = {
       .split(',')
       .map((s) => s.trim())
       .filter(Boolean),
+    blacklistedCompanies: (process.env.BLACKLISTED_COMPANIES || 'Infosys')
+      .split(',')
+      .map((s) => s.trim().toLowerCase())
+      .filter(Boolean),
   },
 
   candidate: candidateData,

@@ -16,6 +16,7 @@ const tracker = require('../tracker/file-tracker');
 
 const BLACKLIST_TITLE_REGEX = /(?:\b(python|django|flask|fastapi|pandas|pyspark|dot\s*net|dotnet|\.net|c#|c\+\+|php|laravel|wordpress|ruby|rails|golang|go\s*developer|rust|ios|swift|objective-c|android|flutter|react\s*native|mobile\s*developer|qa\b|tester|testing|automation\s*test|sdet|devops|sre|cloud\s*engineer|aws\s*engineer|azure\s*engineer|salesforce|sap\b|mainframe|data\s*engineer|data\s*scientist|data\s*analyst|machine\s*learning|ai\s*engineer|deep\s*learning|nlp|computer\s*vision|big\s*data|etl|business\s*analyst|scrum\s*master|product\s*manager|sales|marketing|recruiter|hr\b|intern|internship|trainee|caller|telecaller|bpo|kpo|support)\b)/i;
 const WHITELIST_TITLE_REGEX = /\b(java\s*(?:developer|full\s*stack|backend|engineer|software)|spring\s*boot|full\s*stack|fullstack|node(?:\.js|\s*js)?\s*(?:developer|backend|engineer|software)|react(?:\.js|\s*js)?\s*(?:developer|full\s*stack|engineer)|mern\s*(?:stack|developer)|software\s*engineer.*(?:java|node|react|full\s*stack)|software\s*developer.*(?:java|node|react|full\s*stack))\b/i;
+const BLACKLIST_COMPANY_REGEX = /\b(infosys|infosys\s*bpm|infosys\s*limited)\b/i;
 
 class LinkedInApplicant {
   constructor(browserManager, options = {}) {
@@ -40,6 +41,13 @@ class LinkedInApplicant {
     if (!title) return false;
     if (BLACKLIST_TITLE_REGEX.test(title)) return false;
     return WHITELIST_TITLE_REGEX.test(title);
+  }
+
+  isBlacklistedCompany(company = '', title = '', url = '') {
+    const text = `${company || ''} ${title || ''} ${url || ''}`.toLowerCase();
+    if (BLACKLIST_COMPANY_REGEX.test(text)) return true;
+    const list = config.search?.blacklistedCompanies || ['infosys'];
+    return list.some((c) => text.includes(c));
   }
 
   async ensureLoggedIn(page) {
@@ -336,7 +344,21 @@ class LinkedInApplicant {
             continue;
           }
 
-          // 2. Title filter
+          // 2. Company blacklist check (e.g. Infosys)
+          if (this.isBlacklistedCompany(job.company, job.title, job.url)) {
+            console.log(`  ⏩ Skipping [Excluded Company: ${job.company}]: ${job.title}`);
+            tracker.recordSkipped({
+              platform: 'LinkedIn',
+              title: job.title,
+              company: job.company,
+              location: job.location,
+              applyUrl: job.url,
+              notes: `Excluded company: ${job.company} (interview already completed)`,
+            });
+            continue;
+          }
+
+          // 3. Title filter
           if (!this.isTargetJob(job.title)) {
             tracker.recordSkipped({
               platform: 'LinkedIn',
@@ -353,6 +375,25 @@ class LinkedInApplicant {
           try {
             await page.goto(job.url, { waitUntil: 'domcontentloaded', timeout: 30000 }).catch(() => {});
             await this.sleep(2500);
+
+            // On-page company verification
+            const onPageCompany = await page.evaluate(() => {
+              const el = document.querySelector('.job-details-jobs-unified-top-card__company-name, .jobs-unified-top-card__company-name, a[href*="/company/"]');
+              return el ? el.innerText.trim() : '';
+            }).catch(() => '');
+
+            if (onPageCompany && this.isBlacklistedCompany(onPageCompany, job.title, job.url)) {
+              console.log(`  ⏩ Skipping [Excluded Company on page: ${onPageCompany}]: ${job.title}`);
+              tracker.recordSkipped({
+                platform: 'LinkedIn',
+                title: job.title,
+                company: onPageCompany,
+                location: job.location,
+                applyUrl: job.url,
+                notes: `Excluded company: ${onPageCompany} (interview already completed)`,
+              });
+              continue;
+            }
 
             // Check for Easy Apply button
             const applyBtn = page.locator('button.jobs-apply-button').first();
