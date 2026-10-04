@@ -22,7 +22,7 @@ This file is the single source of truth for screening-question answers used by b
 ## Current employment
 
 - **Employer:** Voltuswave Technologies India Pvt. Ltd.
-- **Title:** Full Stack Developer
+- **Title:** Java Developer
 - **Started:** February 2024
 - **Total experience:** 2.5 years (treat as `2.5` years for any "years of experience" question)
 
@@ -92,9 +92,9 @@ Map any screening question about years of experience using this table. If a tech
 For open-text questions, use these short answers (or ask the user if context-specific):
 
 - **Why are you looking for a change?** → *"Looking for better growth and exposure to large-scale systems."*
-- **Why are you a good fit?** → *"2+ years building production full-stack apps with React, TypeScript, Node.js, and MySQL. End-to-end ownership across SDLC including AWS deployment, Docker, and CI/CD. Comfortable with REST APIs, JWT auth, and integrating third-party / AI APIs."*
-- **Tell us about yourself.** → *"Full Stack Developer at Voltuswave Technologies with 2+ years building scalable web apps using React, Node.js, and MySQL. Recently shipped a multi-tenant freight platform and an AI-powered investment tracker integrating Google Gemini and Yahoo Finance APIs."*
-- **Greatest strength?** → *"End-to-end ownership — comfortable across frontend, backend, database, and deployment."*
+- **Why are you a good fit?** → *"2.5 years designing and delivering production-grade microservices with Java, Spring Boot, Spring Cloud, and AWS. Strong experience with REST APIs, JWT/OAuth2 security, Docker, CI/CD, and MySQL."*
+- **Tell us about yourself.** → *"Java Developer at Voltuswave Technologies with 2.5 years of experience building scalable microservices using Spring Boot, Spring Cloud, AWS, and MySQL. Recently delivered multi-tenant freight and CRM platforms with enterprise-grade authentication and zero-downtime CI/CD pipelines."*
+- **Greatest strength?** → *"Backend engineering & clean architecture — designing secure, resilient microservices with end-to-end cloud deployment ownership."*
 
 ## Always-ask (do NOT auto-answer)
 
