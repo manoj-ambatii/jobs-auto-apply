@@ -17,8 +17,8 @@
     "authorizedInIndia": true,
     "requiresSponsorship": false,
     "linkedinUrl": "https://www.linkedin.com/in/manojambati2469/",
-    "githubUrl": "https://github.com/manoj-voltuswave",
-    "portfolioUrl": "https://github.com/manoj-voltuswave",
+    "githubUrl": "https://github.com/manoj-ambatii",
+    "portfolioUrl": "https://github.com/manoj-ambatii",
     "addressLine1": "Hyderabad, Telangana",
     "address": "Hyderabad, Telangana, India",
     "defaultPassword": "Manoj@2469"
@@ -26,13 +26,13 @@
   "currentEmployment": {
     "employer": "Voltuswave Technologies India Pvt. Ltd.",
     "company": "Voltuswave Technologies India Pvt. Ltd.",
-    "title": "Full Stack Developer",
-    "role": "Full Stack Developer",
+    "title": "Java Developer",
+    "role": "Java Developer",
     "startDate": "2024-02-01",
     "startYear": "2024",
     "startMonth": "02",
     "totalExperienceYears": "2.5",
-    "summary": "Full Stack Developer with 2.5 years of experience developing scalable web applications using React, Node.js, Java, Spring Boot, MySQL, and AWS."
+    "summary": "Java Developer with 2.5 years of experience developing production-grade microservices using Spring Boot, Spring Cloud, AWS, and MySQL."
   },
   "compensationAndNotice": {
     "currentCtcLakhs": "4.2",
@@ -101,8 +101,8 @@
   },
   "narrativeAnswers": {
     "reasonForChange": "Looking for better growth and exposure to large-scale distributed systems.",
-    "goodFit": "2.5 years building production full-stack apps with React, TypeScript, Java/Node.js, and MySQL. End-to-end ownership across SDLC including AWS deployment, Docker, and CI/CD.",
-    "aboutSelf": "Full Stack Developer at Voltuswave Technologies with 2.5 years building scalable web apps using React, Java/Node.js, and relational databases. Experienced in shipping microservices and responsive user interfaces.",
-    "greatestStrength": "End-to-end ownership — comfortable across frontend, backend, database design, and cloud deployment."
+    "goodFit": "2.5 years designing and delivering production-grade microservices with Java, Spring Boot, Spring Cloud, and AWS. Strong experience with REST APIs, JWT/OAuth2 security, Docker, CI/CD, and MySQL.",
+    "aboutSelf": "Java Developer at Voltuswave Technologies with 2.5 years of experience building scalable microservices using Spring Boot, Spring Cloud, AWS, and MySQL. Experienced in shipping enterprise platforms and distributed systems.",
+    "greatestStrength": "Backend engineering & clean architecture — designing secure, resilient microservices with end-to-end cloud deployment ownership."
   }
 }
