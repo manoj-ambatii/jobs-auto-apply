@@ -24030,5 +24030,1069 @@
     "timestamp": "2026-10-04T12:05:20.269Z",
     "title": "Java Cloud Microservices Developer",
     "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-developer-evoke-hr-bengaluru-4-to-8-years-300926031450": {
+    "id": "job_1791119839017_bfzfw",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:17:18.911Z",
+    "title": "Java Developer",
+    "company": "Evoke HR solutions private limited"
+  },
+  "https://www.naukri.com/job-listings-java-developer-abacus-service-bengaluru-6-to-12-years-300926031300": {
+    "id": "job_1791119849663_3oge7",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:17:29.662Z",
+    "title": "Java Developer",
+    "company": "Abacus Service"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-tekskills-hyderabad-chennai-bengaluru-5-to-10-years-300926030413": {
+    "id": "job_1791119860220_6chkg",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:17:40.220Z",
+    "title": "Java Full Stack Developer",
+    "company": "Tekskills"
+  },
+  "https://www.naukri.com/job-listings-edi-java-sql-developer-with-ai-azure-ascendion-engineering-hyderabad-chennai-bengaluru-8-to-13-years-300926029929": {
+    "id": "job_1791119861894_0i3i3",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:17:41.893Z",
+    "title": "EDI Java-SQL Developer with AI-Azure",
+    "company": "Ascendion Engineering"
+  },
+  "https://www.naukri.com/job-listings-java-developer-gcp-cloud-immediate-f2f-kezan-consulting-bengaluru-6-to-10-years-300926028581": {
+    "id": "job_1791119870896_fcr6m",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:17:50.896Z",
+    "title": "Java Developer(GCP cloud)_Immediate_F2F",
+    "company": "kezan"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-ai-lecan-solutions-hyderabad-pune-bengaluru-6-to-11-years-300926026614": {
+    "id": "job_1791119881498_cgf6i",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:01.498Z",
+    "title": "Java Full Stack Developer _AI",
+    "company": "TOP MNC COMPANY"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-capgemini-hyderabad-bengaluru-5-to-10-years-300926026548": {
+    "id": "job_1791119883196_yc7wk",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:03.195Z",
+    "title": "Java Back End Developer",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-solventum-bengaluru-5-to-10-years-300926024609": {
+    "id": "job_1791119892155_97afn",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:12.154Z",
+    "title": "Java Full Stack Developer",
+    "company": "Solventum"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-persistent-hyderabad-bengaluru-5-to-8-years-300926018809": {
+    "id": "job_1791119902749_4xhny",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:22.749Z",
+    "title": "Java Full Stack Developer",
+    "company": "Persistent"
+  },
+  "https://www.naukri.com/job-listings-java-developer-yethi-consulting-bengaluru-4-to-7-years-300926017941": {
+    "id": "job_1791119913337_4656r",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:33.337Z",
+    "title": "Java Developer",
+    "company": "Yethi Consulting"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-with-react-aws-capgemini-pune-bengaluru-7-to-12-years-300926017465": {
+    "id": "job_1791119923948_gqm04",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:43.948Z",
+    "title": "Java Full Stack Developer with React & AWS",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-capgemini-bengaluru-4-to-9-years-300926017392": {
+    "id": "job_1791119925572_s882k",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:45.571Z",
+    "title": "Java Back End Developer",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-java-developer-with-aws-capgemini-bengaluru-4-to-8-years-300926017048": {
+    "id": "job_1791119934584_ae1zc",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:18:54.583Z",
+    "title": "Java Developer with AWS",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-java-developer-bounteous-gurugram-chennai-bengaluru-4-to-8-years-300926015683": {
+    "id": "job_1791119945167_4kgjp",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:05.167Z",
+    "title": "Java Developer",
+    "company": "Bounteous"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-bangalore-tavant-bengaluru-7-to-11-years-300926011864": {
+    "id": "job_1791119946772_4sfs4",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:06.772Z",
+    "title": "Java Back End Developer - Bangalore",
+    "company": "Tavant"
+  },
+  "https://www.naukri.com/job-listings-full-stack-java-developer-java-angular-infinite-bengaluru-5-to-10-years-300926011809": {
+    "id": "job_1791119955740_o0cvz",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:15.740Z",
+    "title": "Full Stack Java Developer (Java + Angular)",
+    "company": "Infinite"
+  },
+  "https://www.naukri.com/job-listings-senior-java-developer-walking-tree-bangalore-rural-chennai-bengaluru-5-to-7-years-300926009850": {
+    "id": "job_1791119966346_2ysnf",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:26.345Z",
+    "title": "Senior Java Developer",
+    "company": "Walking Tree"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-tata-consultancy-services-hyderabad-chennai-bengaluru-7-to-12-years-300926008469": {
+    "id": "job_1791119967983_b9s14",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:27.982Z",
+    "title": "Java Back End Developer",
+    "company": "Tata Consultancy Services"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-naukri-e-hire-pune-chennai-bengaluru-6-to-10-years-300926008138": {
+    "id": "job_1791119976930_0evg7",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:36.929Z",
+    "title": "Java Full Stack Developer",
+    "company": "Naukri E-hire"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-wsne-consulting-hyderabad-bengaluru-8-to-12-years-300926005912": {
+    "id": "job_1791119987461_gspt5",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:47.461Z",
+    "title": "Java Full Stack Developer",
+    "company": "Confidential"
+  },
+  "https://www.naukri.com/job-listings-kvm-developer-ns-global-corporation-remote-1-to-5-years-210526505412": {
+    "id": "job_1791119994533_dpyen",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:54.532Z",
+    "title": "KVM Developer",
+    "company": "NS Global Corporation"
+  },
+  "https://www.naukri.com/job-listings-software-engineer-sadhana-it-solutions-remote-2-to-4-years-090625500433": {
+    "id": "job_1791119994533_4je7o",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:54.533Z",
+    "title": "Software Engineer",
+    "company": "Sadhana It Solutions"
+  },
+  "https://www.naukri.com/job-listings-ai-software-engineer-early-career-kiprosh-remote-0-to-2-years-260526500398": {
+    "id": "job_1791119994534_v9pjt",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:54.533Z",
+    "title": "AI Software Engineer (Early Career)",
+    "company": "Kiprosh"
+  },
+  "https://www.naukri.com/job-listings-software-engineer-ai-square-remote-1-to-5-years-040825506387": {
+    "id": "job_1791119994534_v2bci",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:19:54.534Z",
+    "title": "Software Engineer",
+    "company": "Aisquare"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-spring-boot-enterprise-applications-consult-asia-hyderabad-6-to-11-years-250926911117": {
+    "id": "job_1791120014573_fq521",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:20:14.572Z",
+    "title": "Java Backend Developer : Spring Boot (Enterprise Applications)",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-react-2-3yrs-infosys-infosys-hyderabad-chennai-bengaluru-2-to-3-years-190926020313": {
+    "id": "job_1791120018931_h2o61",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:20:18.931Z",
+    "title": "JAVA + REACT (2-3yrs) @ Infosys",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-java-developer-3-to-7-years-integel-institute-of-technology-tamil-nadu-hyderabad-chennai-bengaluru-3-to-7-years-150926017053": {
+    "id": "job_1791120030682_xc4bg",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:20:30.682Z",
+    "title": "Java Developer - 3 To 7 years",
+    "company": "CONFIDENTIAL"
+  },
+  "https://www.naukri.com/job-listings-java-developer-infosys-hyderabad-pune-bengaluru-2-to-7-years-150926037729": {
+    "id": "job_1791120032420_vuu8n",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:20:32.419Z",
+    "title": "Java Developer",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-fircosoft-developers-cloudxtreme-hyderabad-bengaluru-mumbai-all-areas-7-to-12-years-040926924732": {
+    "id": "job_1791120032421_97irg",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:20:32.420Z",
+    "title": "Fircosoft Developers",
+    "company": "Cloudxtreme"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-smart-placement-services-navi-mumbai-pune-bengaluru-3-to-6-years-250926021049": {
+    "id": "job_1791120041346_01jye",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:20:41.346Z",
+    "title": "Java Full Stack Developer",
+    "company": "CONFIDENTIAL"
+  },
+  "https://www.naukri.com/job-listings-java-developer-limish-remote-0-to-1-years-130726502459": {
+    "id": "job_1791120063414_chmwn",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:21:03.414Z",
+    "title": "Java Developer",
+    "company": "Limish"
+  },
+  "https://www.naukri.com/job-listings-senior-full-stack-java-software-engineer-global-business-ser-4u-remote-3-to-6-years-170325503346": {
+    "id": "job_1791120079284_2ms47",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:21:19.283Z",
+    "title": "Senior Full Stack Java Software Engineer",
+    "company": "Global Business Ser 4u"
+  },
+  "https://www.naukri.com/job-listings-developer-executive-ushankk-remote-3-to-7-years-291122503011": {
+    "id": "job_1791120081096_34sj5",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:21:21.095Z",
+    "title": "Developer Executive",
+    "company": "Ushankk"
+  },
+  "https://www.naukri.com/job-listings-software-developer-entym-remote-2-to-5-years-241225500391": {
+    "id": "job_1791120081096_amrbr",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:21:21.096Z",
+    "title": "Software Developer",
+    "company": "Entym"
+  },
+  "https://www.naukri.com/job-listings-java-mirco-services-developer-insignia-consultancy-solutions-remote-2-to-6-years-220824500344": {
+    "id": "job_1791120081097_nw9k2",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:21:21.096Z",
+    "title": "Java Mirco Services Developer",
+    "company": "Insignia Consultancy Solutions"
+  },
+  "https://www.naukri.com/job-listings-senior-software-engineer-full-stack-mostudio-remote-3-to-8-years-120626505888": {
+    "id": "job_1791120229998_s1cu8",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:23:49.997Z",
+    "title": "Senior Software Engineer, Full Stack",
+    "company": "The Mostudio"
+  },
+  "https://www.naukri.com/job-listings-java-ui-developer-irise-info-remote-5-to-9-years-301025504889": {
+    "id": "job_1791120231906_y7cxu",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:23:51.905Z",
+    "title": "Java UI Developer",
+    "company": "Iris Info"
+  },
+  "https://www.naukri.com/job-listings-sr-python-developer-with-sdvi-rally-highbrow-technology-inc-remote-5-to-10-years-300926504527": {
+    "id": "job_1791120231906_9dcol",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:23:51.906Z",
+    "title": "Sr Python developer with SDVI Rally",
+    "company": "Highbrow Technologies"
+  },
+  "https://www.naukri.com/job-listings-spring-boot-developer-java-technix-technology-patna-1-to-3-years-190424500784": {
+    "id": "job_1791120247350_fohyb",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:07.349Z",
+    "title": "Spring Boot Developer-Java",
+    "company": "Technix India Solutions"
+  },
+  "https://www.naukri.com/job-listings-java-spring-boot-developer-tata-consultancy-services-indore-4-to-9-years-090926014354": {
+    "id": "job_1791120258117_18545",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:18.116Z",
+    "title": "Java Spring Boot Developer",
+    "company": "Tata Consultancy Services"
+  },
+  "https://www.naukri.com/job-listings-java-spring-boot-developer-5-10-yrs-infosys-ahmedabad-chennai-bengaluru-5-to-10-years-300926000076": {
+    "id": "job_1791120259857_7ylie",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:19.857Z",
+    "title": "Java Spring Boot Developer 5 -10 yrs",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-java-spring-boot-developer-6-7-yrs-infosys-ahmedabad-chennai-bengaluru-6-to-8-years-180926035801": {
+    "id": "job_1791120259858_t2vvn",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:19.858Z",
+    "title": "Java Spring Boot Developer 6- 7 yrs",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-java-spring-boot-developer-tata-consultancy-services-navi-mumbai-4-to-8-years-011026038088": {
+    "id": "job_1791120268877_mmkzd",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:28.876Z",
+    "title": "Java Spring Boot Developer",
+    "company": "Tata Consultancy Services"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-cgi-hyderabad-3-to-8-years-250926018356": {
+    "id": "job_1791120285261_ivb7j",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:45.260Z",
+    "title": "Java Full Stack Developer",
+    "company": "CGI"
+  },
+  "https://www.naukri.com/job-listings-java-architect-infosys-limited-bengaluru-8-to-11-years-010726930175": {
+    "id": "job_1791120292572_2ij2k",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:52.571Z",
+    "title": "Java Architect",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-associate-staff-engineer-php-drupal-nagarro-software-pvt-ltd-remote-4-to-9-years-291025502381": {
+    "id": "job_1791120298163_i7hi5",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:58.162Z",
+    "title": "Associate Staff Engineer, PHP Drupal",
+    "company": "Nagarro"
+  },
+  "https://www.naukri.com/job-listings-associate-staff-engineer-erp-nagarro-software-pvt-ltd-remote-4-to-9-years-291025502368": {
+    "id": "job_1791120298163_aacli",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:58.163Z",
+    "title": "Associate Staff Engineer, ERP",
+    "company": "Nagarro"
+  },
+  "https://www.naukri.com/job-listings-associate-staff-engineer-sharepoint-nagarro-software-pvt-ltd-remote-4-to-9-years-291025502365": {
+    "id": "job_1791120298164_oesqn",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:58.163Z",
+    "title": "Associate Staff Engineer, Sharepoint",
+    "company": "Nagarro"
+  },
+  "https://www.naukri.com/job-listings-associate-staff-engineer-php-magento-nagarro-software-pvt-ltd-remote-4-to-9-years-291025502359": {
+    "id": "job_1791120298164_p8phj",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:24:58.164Z",
+    "title": "Associate Staff Engineer, PHP Magento",
+    "company": "Nagarro"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-chennai-6-to-11-years-250926911193": {
+    "id": "job_1791120312787_6hgk3",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:25:12.786Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-pune-6-to-11-years-250926911192": {
+    "id": "job_1791120323888_19q3r",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:25:23.888Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-ghaziabad-6-to-11-years-250926911187": {
+    "id": "job_1791120334631_vpnq5",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:25:34.630Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-gurugram-6-to-11-years-250926911186": {
+    "id": "job_1791120345436_c96fm",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:25:45.436Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-greater-noida-6-to-11-years-250926911185": {
+    "id": "job_1791120356231_8vmli",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:25:56.230Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-noida-6-to-11-years-250926911183": {
+    "id": "job_1791120366950_mjvw4",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:26:06.950Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-delhi-ncr-6-to-11-years-250926911182": {
+    "id": "job_1791120377694_sy2y3",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:26:17.693Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-new-delhi-6-to-11-years-250926911181": {
+    "id": "job_1791120388468_qgpmy",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:26:28.467Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-java-cloud-microservices-developer-consult-asia-bengaluru-6-to-11-years-250926911175": {
+    "id": "job_1791120399317_9y2ii",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:26:39.316Z",
+    "title": "Java Cloud Microservices Developer",
+    "company": "ConsultAsia"
+  },
+  "https://www.naukri.com/job-listings-senior-java-microservices-developer-crisil-pune-5-to-8-years-010825500859": {
+    "id": "job_1791120444974_xy7h6",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:27:24.974Z",
+    "title": "Senior Java Microservices Developer",
+    "company": "Crisil"
+  },
+  "https://www.naukri.com/job-listings-java-microservice-developer-persistent-bengaluru-5-to-8-years-110926006154": {
+    "id": "job_1791120455729_zx6wr",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:27:35.729Z",
+    "title": "Java Microservice Developer",
+    "company": "Persistent"
+  },
+  "https://www.naukri.com/job-listings-java-microservices-developer-lorventech-solutions-india-pvt-ltd-bengaluru-4-to-7-years-100326502640": {
+    "id": "job_1791120505732_f7hty",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:28:25.732Z",
+    "title": "Java Microservices Developer",
+    "company": "Lorven Technologies"
+  },
+  "https://www.naukri.com/job-listings-java-microservices-developer-nulogic-chennai-7-to-9-years-021225504454": {
+    "id": "job_1791120540942_bv2ct",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:29:00.941Z",
+    "title": "Java Microservices Developer<",
+    "company": "NU Technology"
+  },
+  "https://www.naukri.com/job-listings-java-springboot-microservices-developer-infosys-limited-bengaluru-3-to-5-years-290626928221": {
+    "id": "job_1791120542710_w44fp",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:29:02.709Z",
+    "title": "Java Springboot, Microservices Developer",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-java-developer-springboot-microservices-han-digital-solution-mumbai-nagpur-thane-nashik-pune-chhatrapati-sambhajinagar-5-to-10-years-221125501737": {
+    "id": "job_1791120674810_t6rfm",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:31:14.809Z",
+    "title": "Java developer + springboot + microservices",
+    "company": "Han Digital Solution"
+  },
+  "https://www.naukri.com/job-listings-java-microservices-developer-sparix-global-private-limited-noida-4-to-8-years-260526504132": {
+    "id": "job_1791120689173_ohunx",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:31:29.172Z",
+    "title": "Java Microservices Developer",
+    "company": "Sparix Global"
+  },
+  "https://www.naukri.com/job-listings-java-microservices-developer-hucon-solutions-noida-new-delhi-gurugram-7-to-12-years-181125018775": {
+    "id": "job_1791120699888_2cgsc",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:31:39.887Z",
+    "title": "Java + Microservices Developer",
+    "company": "Global MNC"
+  },
+  "https://www.naukri.com/job-listings-junior-developer-creative-hands-hr-hyderabad-chennai-bengaluru-0-to-2-years-280926000987": {
+    "id": "job_1791120704593_0psg1",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:31:44.592Z",
+    "title": "Junior Developer",
+    "company": "Creative Hands HR"
+  },
+  "https://www.naukri.com/job-listings-full-stack-engineer-accenture-solutions-pvt-ltd-hyderabad-2-to-5-years-280926923916": {
+    "id": "job_1791120815108_5b0i8",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:35.107Z",
+    "title": "Full Stack Engineer",
+    "company": "Accenture"
+  },
+  "https://www.naukri.com/job-listings-full-stack-developer-node-js-react-js-wissen-technology-hyderabad-2-to-7-years-031026007064": {
+    "id": "job_1791120825922_vuxju",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:45.921Z",
+    "title": "Full Stack Developer (Node.js + React.js)",
+    "company": "Wissen Technology"
+  },
+  "https://www.naukri.com/job-listings-aws-devops-terraform-infosys-hyderabad-2-to-5-years-021026013987": {
+    "id": "job_1791120827640_z3lb2",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:47.640Z",
+    "title": "AWS DevOps + Terraform",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-gen-ai-aws-l-infosys-hyderabad-pune-bengaluru-2-to-5-years-300926001981": {
+    "id": "job_1791120827641_vvnhc",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:47.640Z",
+    "title": "Gen AI+AWS-L",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-junior-ai-engineer-genai-data-engineering-gcp-aws-databricks-snow-infosys-hyderabad-pune-bengaluru-2-to-5-years-290926041892": {
+    "id": "job_1791120827641_glww9",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:47.641Z",
+    "title": "Junior AI Engineer - GenAI & Data Engineering (GCP/AWS/Databricks/Snow",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-aws-bedrock-developer-infosys-hyderabad-2-to-7-years-280526031730": {
+    "id": "job_1791120827642_fe9lk",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:47.642Z",
+    "title": "AWS Bedrock Developer",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-sql-developer-intouchcx-hyderabad-1-to-2-years-031026006064": {
+    "id": "job_1791120827643_thlyx",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:47.642Z",
+    "title": "Sql Developer",
+    "company": "IntouchCX"
+  },
+  "https://www.naukri.com/job-listings-mlops-aws-devops-infosys-hyderabad-pune-bengaluru-2-to-5-years-021026012500": {
+    "id": "job_1791120827643_my7ei",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:47.643Z",
+    "title": "MLOps + AWS devops",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-bright-academy-marathalli-hyderabad-bengaluru-5-to-10-years-290926015461": {
+    "id": "job_1791120830534_239ba",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.533Z",
+    "title": "Java Back End Developer",
+    "company": "Bright Academy Marathalli"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-capgemini-hyderabad-bengaluru-6-to-9-years-230926044102": {
+    "id": "job_1791120830535_304ve",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.534Z",
+    "title": "Java Back End Developer",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-capgemini-hyderabad-pune-chennai-6-to-11-years-230926044072": {
+    "id": "job_1791120830535_vdv13",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.535Z",
+    "title": "Java Back End Developer",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-tech-mahindra-hyderabad-pune-bengaluru-5-to-10-years-210926013525": {
+    "id": "job_1791120830536_ctmra",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.535Z",
+    "title": "Java Back End Developer",
+    "company": "Tech Mahindra"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-alike-thoughts-hyderabad-pune-6-to-11-years-310826011253": {
+    "id": "job_1791120830536_plttp",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.536Z",
+    "title": "Java Back End Developer",
+    "company": "LTM"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-dynpro-hyderabad-4-to-6-years-250926003791": {
+    "id": "job_1791120830537_08aji",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.536Z",
+    "title": "Java Back End Developer",
+    "company": "IBM"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-advance-career-solutions-hyderabad-pune-bengaluru-6-to-11-years-190926018056": {
+    "id": "job_1791120830537_kn2ds",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:33:50.537Z",
+    "title": "Java Back End Developer",
+    "company": "IT MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-psr-tek-bengaluru-1-to-4-years-300926500151": {
+    "id": "job_1791120851330_zmaou",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:34:11.329Z",
+    "title": "Java Backend Developer",
+    "company": "PSRTEK"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-capgemini-technology-services-india-limited-bengaluru-1-to-5-years-280926928883": {
+    "id": "job_1791120862158_btgnc",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:34:22.157Z",
+    "title": "Java Backend Developer",
+    "company": "Capgemini"
+  },
+  "https://www.naukri.com/job-listings-software-development-engineer-accenture-solutions-pvt-ltd-bengaluru-1-to-4-years-280926928208": {
+    "id": "job_1791120863915_gbog7",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:34:23.914Z",
+    "title": "Software Development Engineer",
+    "company": "Accenture"
+  },
+  "https://www.naukri.com/job-listings-java-fullstack-developer-infosys-limited-bengaluru-2-to-3-years-290926934472": {
+    "id": "job_1791120863915_b72y2",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:34:23.915Z",
+    "title": "Java Fullstack Developer",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-software-engineer-ii-java-springboot-react-jp-morgan-and-chase-bengaluru-2-to-7-years-011026501940": {
+    "id": "job_1791120998071_dcf7q",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:36:38.070Z",
+    "title": "Software Engineer II - Java, Springboot, React",
+    "company": "JPMorgan Chase Bank"
+  },
+  "https://www.naukri.com/job-listings-senior-engineer-brillio-2-bengaluru-2-to-4-years-280926501933": {
+    "id": "job_1791120999860_hohyo",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:36:39.860Z",
+    "title": "Senior Engineer",
+    "company": "Brillio"
+  },
+  "https://www.naukri.com/job-listings-backend-engineer-mclaren-strategic-ventures-india-bengaluru-1-to-2-years-280926008860": {
+    "id": "job_1791121009060_6iypg",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:36:49.059Z",
+    "title": "Backend Engineer",
+    "company": "Mclaren Strategic Ventures India"
+  },
+  "https://www.naukri.com/job-listings-java-api-developer-with-github-copilot-hr-solutions-noida-bengaluru-2-to-5-years-280926006833": {
+    "id": "job_1791121010817_d63j7",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:36:50.817Z",
+    "title": "Java API Developer with Github Copilot",
+    "company": "HR SOLUTIONS"
+  },
+  "https://www.naukri.com/job-listings-java-angular-2-3-yrs-infosys-infosys-pune-chennai-bengaluru-2-to-3-years-160926046796": {
+    "id": "job_1791121010818_fc9ka",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:36:50.818Z",
+    "title": "Java + Angular (2-3 YRS) @ Infosys",
+    "company": "Infosys"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-acesoft-labs-bengaluru-4-to-9-years-180926918865": {
+    "id": "job_1791121022600_ld8kj",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:02.600Z",
+    "title": "Java Backend Developer",
+    "company": "Acesoft labs pvt ltd"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-ciel-hr-pune-chennai-bengaluru-5-to-10-years-170926034233": {
+    "id": "job_1791121033334_2sm89",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:13.333Z",
+    "title": "Java Backend Developer",
+    "company": "CIEL HR"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-altimetrik-hyderabad-pune-bengaluru-7-to-12-years-280926011160": {
+    "id": "job_1791121035108_q6tul",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:15.107Z",
+    "title": "Java Back End Developer",
+    "company": "Altimetrik"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-altimetrik-hyderabad-pune-bengaluru-9-to-10-years-280926010967": {
+    "id": "job_1791121035108_0o5fu",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:15.108Z",
+    "title": "Java Back End Developer",
+    "company": "Altimetrik"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-altimetrik-hyderabad-pune-bengaluru-10-to-12-years-280926010901": {
+    "id": "job_1791121035109_v9ewi",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:15.108Z",
+    "title": "Java Back End Developer",
+    "company": "Altimetrik"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-tata-consultancy-services-bengaluru-mumbai-all-areas-7-to-12-years-290926034250": {
+    "id": "job_1791121035109_rgqda",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:15.109Z",
+    "title": "Java Back End Developer",
+    "company": "Tata Consultancy Services"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-tata-consultancy-services-hyderabad-chennai-bengaluru-6-to-11-years-290926013737": {
+    "id": "job_1791121035110_edb1n",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:15.109Z",
+    "title": "Java Back End Developer",
+    "company": "Tata Consultancy Services"
+  },
+  "https://www.naukri.com/job-listings-insurancenow-developer-exavalu-remote-1-to-3-years-010626504407": {
+    "id": "job_1791121040638_u3sea",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:20.637Z",
+    "title": "InsuranceNow Developer",
+    "company": "Exavalu"
+  },
+  "https://www.naukri.com/job-listings-python-backend-developer-bsh-technologiesa-remote-1-to-4-years-210126502820": {
+    "id": "job_1791121040638_dqkow",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:20.638Z",
+    "title": "Python Backend Developer",
+    "company": "BSH Technologies"
+  },
+  "https://www.naukri.com/job-listings-software-craftsperson-java-angular-ii-professional-incubyte-remote-3-to-8-years-050826502070": {
+    "id": "job_1791121040639_4thaw",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:20.639Z",
+    "title": "Software Craftsperson/Java/Angular- II Professional",
+    "company": "Incubyte Datatech"
+  },
+  "https://www.naukri.com/job-listings-react-native-developer-techknowledgehub-remote-2-to-5-years-220424500463": {
+    "id": "job_1791121040640_emnzh",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:20.639Z",
+    "title": "React Native Developer",
+    "company": "Techknowledgehub"
+  },
+  "https://www.naukri.com/job-listings-junior-full-stack-developer-techknowledgehub-remote-0-to-1-years-220424500461": {
+    "id": "job_1791121040640_mkzf5",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:20.640Z",
+    "title": "Junior Full-Stack Developer",
+    "company": "Techknowledgehub"
+  },
+  "https://www.naukri.com/job-listings-android-developer-xicom-technologies-remote-2-to-4-years-220126504102": {
+    "id": "job_1791121040641_yz6e0",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:20.641Z",
+    "title": "Android Developer",
+    "company": "Xicom Technologies"
+  },
+  "https://www.naukri.com/job-listings-senior-backend-developer-neetable-remote-2-to-4-years-211124502932": {
+    "id": "job_1791121053613_fxitr",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:33.612Z",
+    "title": "Senior Backend Developer",
+    "company": "Neetable"
+  },
+  "https://www.naukri.com/job-listings-backend-engineer-aampe-remote-0-to-2-years-140525503527": {
+    "id": "job_1791121068780_qushm",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:48.779Z",
+    "title": "Backend engineer",
+    "company": "Aampe"
+  },
+  "https://www.naukri.com/job-listings-senior-software-developer-harris-global-business-services-gbs-remote-6-to-8-years-100926504199": {
+    "id": "job_1791121070634_5vlq3",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:50.634Z",
+    "title": "Senior Software Developer",
+    "company": "Harris Global Business Services"
+  },
+  "https://www.naukri.com/job-listings-senior-software-developer-harris-healthcare-remote-6-to-8-years-100926504197": {
+    "id": "job_1791121070635_ynfjv",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:50.634Z",
+    "title": "Senior Software Developer",
+    "company": "Harris Healthcare"
+  },
+  "https://www.naukri.com/job-listings-associate-staff-engineer-mobile-hybrid-nagarro-software-pvt-ltd-remote-4-to-9-years-291025501394": {
+    "id": "job_1791121070635_miu8b",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:50.635Z",
+    "title": "Associate Staff Engineer, Mobile Hybrid",
+    "company": "Nagarro"
+  },
+  "https://www.naukri.com/job-listings-java-back-end-developer-clover-infotech-thane-navi-mumbai-mumbai-all-areas-2-to-4-years-280926017323": {
+    "id": "job_1791121073439_9olod",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:37:53.439Z",
+    "title": "Java Back End Developer",
+    "company": "Clover Infotech"
+  },
+  "https://www.naukri.com/job-listings-java-full-stack-developer-java-angular-bahwan-cybertek-mumbai-2-to-4-years-290926029223": {
+    "id": "job_1791121082499_haexx",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:38:02.498Z",
+    "title": "Java Full Stack Developer - (Java + Angular)",
+    "company": "Bahwan CyberTek"
+  },
+  "https://www.naukri.com/job-listings-full-stack-engineer-accenture-solutions-pvt-ltd-mumbai-2-to-5-years-290926936767": {
+    "id": "job_1791121101707_z2dml",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:38:21.706Z",
+    "title": "Full Stack Engineer",
+    "company": "Accenture"
+  },
+  "https://www.naukri.com/job-listings-software-developer-ample-softech-system-nagpur-pune-mumbai-all-areas-0-to-4-years-290926028131": {
+    "id": "job_1791121103494_g28rm",
+    "status": "SKIPPED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:38:23.493Z",
+    "title": "Software Developer",
+    "company": "Ample Softech System"
+  },
+  "https://www.naukri.com/job-listings-backend-developer-amsotics-singrauli-1-to-5-years-280926501333": {
+    "id": "job_1791121135884_4b2mz",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:38:55.884Z",
+    "title": "Backend Developer",
+    "company": "Amsotics"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-synechron-technologies-pvt-ltd-pune-bengaluru-5-to-10-years-210926922187": {
+    "id": "job_1791121149444_rv3cz",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:39:09.443Z",
+    "title": "Java Backend Developer",
+    "company": "Synechron"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-persistent-pune-5-to-7-years-290926018287": {
+    "id": "job_1791121160184_rgonl",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:39:20.184Z",
+    "title": "Java Backend Developer",
+    "company": "Persistent"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-rarr-technologies-bengaluru-5-to-8-years-280926502917": {
+    "id": "job_1791121198522_8860d",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:39:58.521Z",
+    "title": "Java Backend Developer",
+    "company": "Rarr Technologies"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-kumaran-systems-pvt-ltd-chennai-5-to-10-years-011026502639": {
+    "id": "job_1791121250282_prinu",
+    "status": "EXTERNAL",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:40:50.281Z",
+    "title": "Java Backend Developer",
+    "company": "Kumaran Systems"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-thane-5-to-10-years-250926907653": {
+    "id": "job_1791121261140_9zh4t",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:41:01.140Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-nagpur-5-to-10-years-250926907643": {
+    "id": "job_1791121271842_xm1lz",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:41:11.841Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-bhubaneswar-5-to-10-years-250926907642": {
+    "id": "job_1791121282662_nwj6o",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:41:22.662Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-lucknow-5-to-10-years-250926907640": {
+    "id": "job_1791121293435_ef5u1",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:41:33.434Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-kochi-5-to-10-years-250926907639": {
+    "id": "job_1791121304210_1pgci",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:41:44.209Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-coimbatore-5-to-10-years-250926907636": {
+    "id": "job_1791121315032_pv0eu",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:41:55.031Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-surat-5-to-10-years-250926907634": {
+    "id": "job_1791121325813_9ag49",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:42:05.812Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-jaipur-5-to-10-years-250926907632": {
+    "id": "job_1791121336565_m763u",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:42:16.564Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-chandigarh-5-to-10-years-250926907630": {
+    "id": "job_1791121347337_4jif7",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:42:27.336Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-indore-5-to-10-years-250926907629": {
+    "id": "job_1791121358149_1uya0",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:42:38.149Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-ahmedabad-5-to-10-years-250926907626": {
+    "id": "job_1791121368938_4an5h",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:42:48.937Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-kolkata-5-to-10-years-250926907623": {
+    "id": "job_1791121379750_q6wl7",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:42:59.750Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-chennai-5-to-10-years-250926907622": {
+    "id": "job_1791121390492_soi54",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:43:10.491Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-pune-5-to-10-years-250926907621": {
+    "id": "job_1791121401292_wlh1m",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:43:21.292Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
+  },
+  "https://www.naukri.com/job-listings-java-backend-developer-consult-asia-ghaziabad-5-to-10-years-250926907610": {
+    "id": "job_1791121412097_u5awt",
+    "status": "APPLIED",
+    "platform": "Naukri",
+    "timestamp": "2026-10-04T13:43:32.097Z",
+    "title": "Java Backend Developer",
+    "company": "CMMI Level 5 IT Company - MNC"
   }
 }
