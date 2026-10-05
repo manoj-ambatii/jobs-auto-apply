@@ -21,12 +21,16 @@ const BLACKLIST_COMPANY_REGEX = /\b(infosys|infosys\s*bpm|infosys\s*limited)\b/i
 class LinkedInApplicant {
   constructor(browserManager, options = {}) {
     this.browserManager = browserManager;
+    const limit = options.noCap ? Infinity : (options.limit !== undefined ? options.limit : config.search.targetApplications);
     this.options = {
-      limit: options.limit || config.search.targetApplications,
+      limit: limit || Infinity,
+      noCap: Boolean(options.noCap) || limit === Infinity,
       headless: options.headless !== undefined ? options.headless : config.browser.isHeadless,
       keywords: options.keywords || config.search.keywords,
       locations: options.locations || config.search.locations,
       freshness: options.freshness || config.search.freshness,
+      maxPages: options.maxPages || 25,
+      javaOnly: options.javaOnly !== undefined ? options.javaOnly : (options.keywords ? options.keywords.every((k) => /java|spring/i.test(k)) : false),
     };
     this.candidate = config.candidate;
     this.creds = config.credentials.linkedin;
@@ -40,6 +44,14 @@ class LinkedInApplicant {
   isTargetJob(title) {
     if (!title) return false;
     if (BLACKLIST_TITLE_REGEX.test(title)) return false;
+
+    // If searching specifically for Java roles, strictly require Java / Spring / J2EE
+    const isJavaTargeted = this.options.javaOnly ||
+      (this.options.keywords && this.options.keywords.every((k) => /java|spring/i.test(k)));
+    if (isJavaTargeted) {
+      return /\b(java|spring\s*boot|spring|j2ee)\b/i.test(title);
+    }
+
     return WHITELIST_TITLE_REGEX.test(title);
   }
 

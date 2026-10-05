@@ -4,7 +4,6 @@
  */
 
 const path = require('path');
-const { google } = require('googleapis');
 const config = require('../../config');
 
 function getOAuthClient() {
@@ -16,6 +15,7 @@ function getOAuthClient() {
     return null;
   }
 
+  const { google } = require('googleapis');
   const oauth2Client = new google.auth.OAuth2(
     clientId,
     clientSecret,

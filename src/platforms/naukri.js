@@ -22,12 +22,16 @@ const BLACKLIST_COMPANY_REGEX = /\b(infosys|infosys\s*bpm|infosys\s*limited)\b/i
 class NaukriApplicant {
   constructor(browserManager, options = {}) {
     this.browserManager = browserManager;
+    const limit = options.noCap ? Infinity : (options.limit !== undefined ? options.limit : config.search.targetApplications);
     this.options = {
-      limit: options.limit || config.search.targetApplications,
+      limit: limit || Infinity,
+      noCap: Boolean(options.noCap) || limit === Infinity,
       headless: options.headless !== undefined ? options.headless : config.browser.isHeadless,
       keywords: options.keywords || config.search.keywords,
       locations: options.locations || config.search.locations,
       jobAge: options.jobAge || config.search.jobAge,
+      maxPages: options.maxPages || 25,
+      javaOnly: options.javaOnly !== undefined ? options.javaOnly : (options.keywords ? options.keywords.every((k) => /java|spring/i.test(k)) : false),
     };
     this.candidate = config.candidate;
     this.creds = config.credentials.naukri;
@@ -42,6 +46,14 @@ class NaukriApplicant {
   isTargetJob(title) {
     if (!title) return false;
     if (BLACKLIST_TITLE_REGEX.test(title)) return false;
+
+    // If searching specifically for Java roles, strictly require Java / Spring / J2EE
+    const isJavaTargeted = this.options.javaOnly ||
+      (this.options.keywords && this.options.keywords.every((k) => /java|spring/i.test(k)));
+    if (isJavaTargeted) {
+      return /\b(java|spring\s*boot|spring|j2ee)\b/i.test(title);
+    }
+
     return WHITELIST_TITLE_REGEX.test(title);
   }
 
@@ -491,8 +503,9 @@ class NaukriApplicant {
   async run() {
     console.log(`\n======================================================`);
     console.log(`🚀 Starting Naukri Auto-Apply`);
-    console.log(`Target: ${this.options.limit} applications`);
+    console.log(`Target: ${this.options.limit === Infinity ? 'ALL AVAILABLE JOBS (No Cap)' : this.options.limit + ' applications'}`);
     console.log(`Mode:   ${this.options.headless ? 'HEADLESS' : 'HEADED'}`);
+    console.log(`Search: ${this.options.keywords.join(', ')}`);
     console.log(`======================================================\n`);
 
     const { context, page } = await this.browserManager.launch({ headless: this.options.headless });
@@ -501,11 +514,12 @@ class NaukriApplicant {
     try {
       await this.ensureLoggedIn(page);
       const searchUrls = this.buildSearchUrls();
+      const maxPages = this.options.maxPages || 25;
 
       for (const baseUrl of searchUrls) {
         if (appliedCount >= this.options.limit) break;
 
-        for (let p = 1; p <= 2 && appliedCount < this.options.limit; p++) {
+        for (let p = 1; p <= maxPages && appliedCount < this.options.limit; p++) {
           const pageUrl = baseUrl + `&pageNo=${p}`;
           console.log(`\n[Naukri] Scanning: ${pageUrl}`);
           await page.goto(pageUrl, { waitUntil: 'domcontentloaded', timeout: 35000 }).catch(() => {});
@@ -524,6 +538,11 @@ class NaukriApplicant {
               };
             }).filter((j) => j.title && j.url);
           }).catch(() => []);
+
+          if (jobCards.length === 0) {
+            console.log(`[Naukri] No jobs found on page ${p}. Moving to next search query.`);
+            break;
+          }
 
           console.log(`[Naukri] Found ${jobCards.length} jobs on page ${p}`);
 

@@ -33,17 +33,27 @@ program
   .option('-p, --platform <platform>', 'Platform to apply on: linkedin, naukri, all', 'all')
   .option('-m, --mode <mode>', 'Browser mode: headed (visible) or headless (silent)', 'headed')
   .option('-l, --limit <number>', 'Maximum applications for this run', String(config.search.targetApplications))
+  .option('-k, --keywords <keywords>', 'Job title keywords separated by comma (e.g. "Java Developer")')
+  .option('--no-cap', 'Remove application limit cap and apply to all available matching jobs')
+  .option('--max-pages <number>', 'Maximum search pages to scan per query', '25')
   .action(async (opts) => {
     const isHeadless = opts.mode.toLowerCase() === 'headless';
-    const limit = parseInt(opts.limit, 10);
+    const noCap = Boolean(opts.noCap) || opts.limit === '0' || opts.limit === 'unlimited' || opts.limit === 'all';
+    const limit = noCap ? Infinity : parseInt(opts.limit, 10);
     const platform = opts.platform.toLowerCase();
+    const keywords = opts.keywords
+      ? opts.keywords.split(',').map((s) => s.trim()).filter(Boolean)
+      : config.search.keywords;
+    const maxPages = parseInt(opts.maxPages, 10) || 25;
 
     console.log(`\n======================================================`);
     console.log(`  Jobs Auto-Apply - Execution Config`);
     console.log(`======================================================`);
     console.log(`  Platform:     ${platform.toUpperCase()}`);
     console.log(`  Browser Mode: ${isHeadless ? 'HEADLESS' : 'HEADED (Visible)'}`);
-    console.log(`  Target Limit: ${limit}`);
+    console.log(`  Target Limit: ${noCap || limit === Infinity ? 'NO CAP (Apply to ALL available jobs)' : limit}`);
+    console.log(`  Keywords:     ${keywords.join(', ')}`);
+    console.log(`  Max Pages:    ${maxPages} pages per search query`);
     console.log(`  Data Storage: ${config.paths.data}`);
     console.log(`======================================================\n`);
 
@@ -51,6 +61,9 @@ program
       const linkedin = new LinkedInApplicant(browserManager, {
         headless: isHeadless,
         limit,
+        noCap,
+        keywords,
+        maxPages,
       });
       await linkedin.run();
     }
@@ -59,6 +72,9 @@ program
       const naukri = new NaukriApplicant(browserManager, {
         headless: isHeadless,
         limit,
+        noCap,
+        keywords,
+        maxPages,
       });
       await naukri.run();
     }

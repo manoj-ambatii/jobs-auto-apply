@@ -10,6 +10,8 @@
     "apply:all": "node src/cli.js apply --platform all",
     "apply:linkedin:headed": "node src/cli.js apply --platform linkedin --mode headed",
     "apply:naukri:headed": "node src/cli.js apply --platform naukri --mode headed",
+    "apply:naukri:java": "node src/cli.js apply --platform naukri --mode headed --keywords \"Java Developer\" --no-cap",
+    "apply:naukri:nocap": "node src/cli.js apply --platform naukri --mode headed --no-cap",
     "apply:linkedin:headless": "node src/cli.js apply --platform linkedin --mode headless",
     "apply:naukri:headless": "node src/cli.js apply --platform naukri --mode headless",
     "tracker:stats": "node src/cli.js stats",
