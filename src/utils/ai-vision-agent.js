@@ -15,7 +15,7 @@ async function askAiForNextAction(page, contextStr = '') {
 
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash",
+        model: "gemini-3.8-flash",
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -109,7 +109,7 @@ IMPORTANT RULES:
 Return the JSON payload.
 `;
         
-        console.log('  [AI] 🤔 Asking Gemini 2.5 Flash what to do next...');
+        console.log('  [AI] 🤔 Asking Gemini 3.8 Flash what to do next...');
         const result = await model.generateContent([
             prompt, 
             { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
