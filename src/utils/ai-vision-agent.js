@@ -13,46 +13,44 @@ async function askAiForNextAction(page, contextStr = '') {
         return null;
     }
 
-    const targetModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-        model: targetModel,
-        generationConfig: {
-            responseMimeType: "application/json",
-            responseSchema: {
-                type: SchemaType.OBJECT,
-                properties: {
-                    reasoning: { 
-                        type: SchemaType.STRING,
-                        description: "Explain what this screen is and your overall plan for it"
-                    },
-                    actions: {
-                        type: SchemaType.ARRAY,
-                        description: "List of actions to perform on this screen in order",
-                        items: {
-                            type: SchemaType.OBJECT,
-                            properties: {
-                                action: { 
-                                    type: SchemaType.STRING, 
-                                    description: "One of: 'click', 'fill', 'upload_resume', 'fetch_otp', 'done', 'error'" 
-                                },
-                                target_id: { 
-                                    type: SchemaType.STRING,
-                                    description: "The data-ai-id of the target element (e.g. ai-node-3). Required for click and fill."
-                                },
-                                value: { 
-                                    type: SchemaType.STRING,
-                                    description: "If action is 'fill', the exact text to type into the element"
-                                }
-                            },
-                            required: ["action"]
-                        }
-                    }
+    
+    // Base configuration for structured JSON output
+    const generationConfig = {
+        responseMimeType: "application/json",
+        responseSchema: {
+            type: SchemaType.OBJECT,
+            properties: {
+                reasoning: { 
+                    type: SchemaType.STRING,
+                    description: "Explain what this screen is and your overall plan for it"
                 },
-                required: ["reasoning", "actions"]
-            }
+                actions: {
+                    type: SchemaType.ARRAY,
+                    description: "List of actions to perform on this screen in order",
+                    items: {
+                        type: SchemaType.OBJECT,
+                        properties: {
+                            action: { 
+                                type: SchemaType.STRING, 
+                                description: "One of: 'click', 'fill', 'upload_resume', 'fetch_otp', 'done', 'error'" 
+                            },
+                            target_id: { 
+                                type: SchemaType.STRING,
+                                description: "The data-ai-id of the target element (e.g. ai-node-3). Required for click and fill."
+                            },
+                            value: { 
+                                type: SchemaType.STRING,
+                                description: "If action is 'fill', the exact text to type into the element"
+                            }
+                        },
+                        required: ["action"]
+                    }
+                }
+            },
+            required: ["reasoning", "actions"]
         }
-    });
+    };
 
     try {
         // 1. Extract simplified interactive DOM and annotate it for the AI
@@ -124,27 +122,52 @@ IMPORTANT RULES:
 Evaluate the screenshot and the DOM. Return your reasoning and the array of actions to perform.
 `;
         
-        console.log(`  [AI] 🤔 Asking ${targetModel} to analyze the entire screen...`);
+        const fallbackModels = ['gemini-3.8-flash', 'gemini-1.5-pro', 'gemini-1.5-flash', 'gemini-pro-vision'];
+        const userModel = process.env.GEMINI_MODEL;
+        const modelsToTry = userModel ? [userModel, ...fallbackModels] : fallbackModels;
+        const uniqueModels = [...new Set(modelsToTry)];
         
         let result;
-        let retries = 3;
-        while (retries > 0) {
-            try {
-                result = await model.generateContent([
-                    prompt, 
-                    { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
-                ]);
-                break; // success
-            } catch (apiErr) {
-                if (apiErr.message.includes('503') || apiErr.message.includes('429')) {
-                    retries--;
-                    if (retries === 0) throw apiErr;
-                    console.log(`  [AI] ⚠️ Gemini API Overloaded (503/429). Retrying in 10 seconds... (${retries} retries left)`);
-                    await new Promise(r => setTimeout(r, 10000));
-                } else {
-                    throw apiErr;
+        let success = false;
+        let finalErr = null;
+
+        for (const currentModel of uniqueModels) {
+            console.log(`  [AI] 🤔 Asking ${currentModel} to analyze the entire screen...`);
+            const model = genAI.getGenerativeModel({ model: currentModel, generationConfig });
+            
+            let retries = 2; // Overload retries per model
+            while (retries > 0) {
+                try {
+                    result = await model.generateContent([
+                        prompt, 
+                        { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
+                    ]);
+                    success = true;
+                    break;
+                } catch (apiErr) {
+                    finalErr = apiErr;
+                    if (apiErr.message.includes('404')) {
+                        console.log(`  [AI] ⚠️ Model ${currentModel} is unavailable/deprecated (404). Cascading to next model...`);
+                        break; // Break retry loop to switch model
+                    } else if (apiErr.message.includes('503') || apiErr.message.includes('429')) {
+                        retries--;
+                        if (retries === 0) {
+                            console.log(`  [AI] ⚠️ Model ${currentModel} is severely overloaded. Cascading to next model...`);
+                            break; 
+                        }
+                        console.log(`  [AI] ⚠️ ${currentModel} Overloaded (503/429). Retrying in 5 seconds...`);
+                        await new Promise(r => setTimeout(r, 5000));
+                    } else {
+                        console.log(`  [AI] ❌ Unexpected error with ${currentModel}: ${apiErr.message}. Cascading to next model...`);
+                        break;
+                    }
                 }
             }
+            if (success) break;
+        }
+
+        if (!success) {
+            throw new Error(`All Gemini models failed or were unavailable. Last error: ${finalErr?.message}`);
         }
 
         const responseData = JSON.parse(result.response.text());
