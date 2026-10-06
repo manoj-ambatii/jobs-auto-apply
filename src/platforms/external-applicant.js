@@ -71,15 +71,19 @@ class ExternalApplicant {
   }
 
   resolveResumePath() {
+    const envPath = process.env.RESUME_FILE ? path.resolve(__dirname, '../../', process.env.RESUME_FILE) : null;
+    
     const candidates = [
-      path.resolve(__dirname, '../../resume/Manoj_Ambati_Resume.pdf'),
+      envPath,
       path.resolve(__dirname, '../../resume/Manoj_Ambati_Resume_v2.pdf'),
       path.resolve(__dirname, '../../resume/Manoj_Ambati_Java_Full_Stack_Resume.pdf'),
-    ];
+      path.resolve(__dirname, '../../resume/Manoj_Ambati_Resume.pdf'),
+    ].filter(Boolean); // removes null if envPath wasn't set
+
     for (const p of candidates) {
       if (fs.existsSync(p)) return p;
     }
-    return candidates[0];
+    return candidates[1] || candidates[0]; // fallback
   }
 
   // ── ATS Detection ───────────────────────────────────────────────────────────
