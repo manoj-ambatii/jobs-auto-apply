@@ -26,6 +26,7 @@ const path = require('path');
 const config = require('../../config');
 const tracker = require('../tracker/file-tracker');
 const { fetchLatestOtp, fetchVerificationLink } = require('../utils/gmail-otp-helper');
+const { askAiForNextAction, executeAiAction } = require('../utils/ai-vision-agent');
 
 // ─── Filters ─────────────────────────────────────────────────────────────────
 const BLACKLIST_TITLE_REGEX = /(?:\b(python|django|flask|fastapi|pandas|pyspark|dot\s*net|dotnet|\.net|c#|c\+\+|php|laravel|wordpress|ruby|rails|golang|go\s*developer|rust|ios|swift|objective-c|android|flutter|react\s*native|mobile\s*developer|qa\b|tester|testing|automation\s*test|sdet|devops|sre|cloud\s*engineer|aws\s*engineer|azure\s*engineer|salesforce|sap\b|mainframe|data\s*engineer|data\s*scientist|data\s*analyst|machine\s*learning|ai\s*engineer|deep\s*learning|nlp|computer\s*vision|big\s*data|etl|business\s*analyst|scrum\s*master|product\s*manager|sales|marketing|recruiter|hr\b|intern|internship|trainee|caller|telecaller|bpo|kpo|support)\b)/i;
@@ -310,12 +311,21 @@ class ExternalApplicant {
 
       const screen = await this.analyseScreen(page);
       
-      // Handle stuck state
-      if (screen === previousScreen && screen !== 'unknown' && screen !== 'form') {
+      // Handle stuck state with Live AI Vision
+      if (screen === previousScreen && screen !== 'form') {
         stuckCount++;
-        if (stuckCount >= 3) {
-          console.log(`  [External] ⚠️ Stuck on ${screen} screen for 3 loops. Aborting to prevent infinite loop.`);
-          return { status: 'failed', notes: `Stuck on ${screen} screen (possible validation error or captcha)` };
+        if (stuckCount >= 2) {
+          console.log(`  [External] ⚠️ Seem to be stuck on ${screen.toUpperCase()}. Engaging Live AI Vision...`);
+          const aiDecision = await askAiForNextAction(page, `Stuck on screen type: ${screen}`);
+          const executed = await executeAiAction(page, aiDecision);
+          if (executed) {
+             stuckCount = 0; 
+             await this.sleep(4000);
+             continue; // Skip the hardcoded switch this iteration
+          } else if (stuckCount >= 4) {
+             console.log(`  [External] ❌ Live AI could not bypass this block. Aborting to prevent infinite loop.`);
+             return { status: 'failed', notes: `Failed to clear ${screen} screen even with Live AI` };
+          }
         }
       } else {
         stuckCount = 0;
@@ -459,15 +469,18 @@ class ExternalApplicant {
           break;
 
         default: // 'unknown'
-          // Try scrolling and waiting for content
-          await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-          await this.sleep(2000);
-
-          // Last resort: try clicking any apply-like button visible
-          const fallbackClicked = await this.clickApplyButton(page);
-          if (!fallbackClicked) {
-            console.log(`  [External] Unknown screen on iteration ${iteration}. Waiting...`);
+          console.log(`  [External] 🤖 Unknown screen detected on iteration ${iteration}. Engaging Live AI Vision...`);
+          
+          const aiDecision = await askAiForNextAction(page, 'Unknown screen layout');
+          const executed = await executeAiAction(page, aiDecision);
+          
+          if (!executed) {
+            console.log(`  [External] AI fallback failed. Trying manual scroll and standard apply button...`);
+            await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+            const fallbackClicked = await this.clickApplyButton(page);
             await this.sleep(3000);
+          } else {
+            await this.sleep(4000);
           }
           break;
       }
