@@ -1,6 +1,8 @@
 const { GoogleGenerativeAI, SchemaType } = require("@google/generative-ai");
 const config = require('../../config');
 
+let currentWorkingModel = null;
+
 /**
  * Pure Live AI Vision Agent using Google Gemini 3.8 Flash
  * Analyzes the entire page and returns a list of actions to perform.
@@ -134,8 +136,11 @@ Evaluate the screenshot and the DOM. Return your reasoning and the array of acti
             'gemini-1.5-flash',
             'gemini-pro-vision'
         ];
+        
         const userModel = process.env.GEMINI_MODEL;
-        const modelsToTry = userModel ? [userModel, ...fallbackModels] : fallbackModels;
+        // Priority: 1. The model that succeeded last time. 2. User's manually set model in .env. 3. Fallback cascade.
+        const startingModel = currentWorkingModel || userModel || fallbackModels[0];
+        const modelsToTry = [startingModel, ...(userModel ? [userModel] : []), ...fallbackModels];
         const uniqueModels = [...new Set(modelsToTry)];
         
         let result;
@@ -154,6 +159,7 @@ Evaluate the screenshot and the DOM. Return your reasoning and the array of acti
                         { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
                     ]);
                     success = true;
+                    currentWorkingModel = currentModel; // Remember this model for the next screen!
                     break;
                 } catch (apiErr) {
                     finalErr = apiErr;
