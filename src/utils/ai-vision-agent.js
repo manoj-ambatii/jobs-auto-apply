@@ -217,12 +217,34 @@ async function executeAiAction(page, actionObj) {
                 } 
                 
                 else if (actionObj.action === 'fill') {
-                    // Bypass react event issues
-                    await locator.click({ force: true }).catch(()=>{});
-                    await locator.fill(actionObj.value || '');
-                    console.log(`  [AI] ✅ Filled element ${actionObj.target_id} with: "${actionObj.value}"`);
-                    return true;
-                }
+    const tagName = await locator.evaluate(el => el.tagName.toLowerCase()).catch(() => '');
+    if (tagName === 'select') {
+        const selectedText = await locator.evaluate((select, val) => {
+            const options = Array.from(select.options);
+            const valLower = (val || '').toLowerCase();
+            let opt = options.find(o => o.text.toLowerCase() === valLower || o.value.toLowerCase() === valLower);
+            if (!opt) opt = options.find(o => o.text.toLowerCase().includes(valLower));
+            if (opt) {
+                select.value = opt.value;
+                select.dispatchEvent(new Event('change', { bubbles: true }));
+                select.dispatchEvent(new Event('input', { bubbles: true }));
+                return opt.text;
+            }
+            return null;
+        }, actionObj.value);
+        if (selectedText) {
+            console.log('  [AI] ✔️ Selected option "' + selectedText + '" on dropdown ' + actionObj.target_id);
+        } else {
+            await locator.selectOption(actionObj.value).catch(() => {});
+            console.log('  [AI] ✔️ Attempted native select "' + actionObj.value + '" on dropdown ' + actionObj.target_id);
+        }
+        return true;
+    }
+    await locator.click({ force: true }).catch(()=>{});
+    await locator.fill(actionObj.value || '');
+    console.log('  [AI] ✔️ Filled element ' + actionObj.target_id + ' with: "' + actionObj.value + '"');
+    return true;
+}
             } else {
                 console.log(`  [AI] ⚠️ Element ${actionObj.target_id} is not visible.`);
             }
