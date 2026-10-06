@@ -289,113 +289,23 @@ class ExternalApplicant {
    */
   async executeApplication(page, job) {
     const currentUrl = page.url();
-    const htmlSnippet = await page.content().catch(() => '');
-    const ats = this.detectAts(currentUrl, htmlSnippet);
-    console.log(`  [External] ATS: ${ats.toUpperCase()} | URL: ${currentUrl.slice(0, 80)}`);
-
-    // Blacklist check
-    const pageText = await page.evaluate(() => (document.body?.innerText || '').slice(0, 1000)).catch(() => '');
-    if (isBlacklistedCompany(job.company, pageText, currentUrl)) {
-      return { status: 'skipped', notes: `Excluded company: ${job.company} (blacklisted)` };
-    }
-
-    // Pure Live AI Agent Loop
-    const MAX_ITERATIONS = 15;
-    let iteration = 0;
-    let contextStr = "Initial page load";
-    let stuckCount = 0;
-    let lastDomHash = '';
-
-    while (iteration < MAX_ITERATIONS) {
-      iteration++;
-      await this.sleep(3000);
-
-      // Fast heuristic check for success to save API calls
-      const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
-      if (isSuccessPage(bodyText)) {
-        console.log('  [External] ✅ Application confirmed!');
-        return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal` };
-      }
-      if (/already applied|you have already submitted|you already applied/i.test(bodyText)) {
-        return { status: 'already_applied', notes: 'Already applied on this external portal' };
-      }
-
-      console.log(`\n  [External] 🤖 Engaging Live AI Vision (Iteration ${iteration})...`);
-      
-      const aiDecision = await askAiForNextAction(page, contextStr);
-      
-      if (!aiDecision || !aiDecision.actions || aiDecision.actions.length === 0) {
-        console.log('  [External] AI returned no actions. Waiting...');
-        await this.sleep(4000);
-        continue;
-      }
-
-      let actionsExecuted = 0;
-      let actionLog = [];
-
-      for (const actionObj of aiDecision.actions) {
-        if (actionObj.action === 'done') {
-            console.log('  [External] ✅ AI marked application as complete.');
-            return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal (AI confirmed)` };
+    console.log('  [External] Saving external job for manual apply: ' + currentUrl);
+    
+    try {
+        const extFile = 'data/external-jobs-to-apply.csv';
+        if (!fs.existsSync('data')) fs.mkdirSync('data');
+        if (!fs.existsSync(extFile)) {
+            fs.writeFileSync(extFile, 'Job Title,Company,URL\n');
         }
         
-        if (actionObj.action === 'error') {
-            console.log('  [External] ❌ AI encountered an unrecoverable error or invalid credentials.');
-            return { status: 'failed', notes: `AI failed: ${aiDecision.reasoning}` };
-        }
-
-        if (actionObj.action === 'upload_resume') {
-            await this.handleResumeUpload(page);
-            actionLog.push('uploaded_resume');
-            actionsExecuted++;
-            continue;
-        }
-
-        if (actionObj.action === 'fetch_otp') {
-            await this.handleOtpVerification(page);
-            actionLog.push('fetched_otp');
-            actionsExecuted++;
-            continue;
-        }
-
-        const executed = await executeAiAction(page, actionObj);
-        if (executed) {
-            actionLog.push(`${actionObj.action} on ${actionObj.target_id}`);
-            actionsExecuted++;
-        }
-        // Small delay between multiple actions on the same screen (e.g. filling out a form)
-        if (aiDecision.actions.length > 1) {
-            await this.sleep(800);
-        }
-      }
-
-      contextStr = `Last AI reasoning: ${aiDecision.reasoning}. Executed: ${actionLog.join(', ')}`;
-
-      if (actionsExecuted === 0) {
-        stuckCount++;
-        console.log(`  [External] ⚠️ No actions successfully executed. (Stuck count: ${stuckCount})`);
-        if (stuckCount >= 4) {
-          console.log(`  [External] ❌ Stuck for too long. Aborting to prevent infinite loop.`);
-          return { status: 'failed', notes: 'AI got stuck and could not progress' };
-        }
-      } else {
-        stuckCount = 0;
-      }
-      
-      // Give the page time to react/navigate before taking the next screenshot
-      await this.sleep(4000);
+        const safeTitle = (job.title || '').replace(/"/g, '""');
+        const safeComp = (job.company || '').replace(/"/g, '""');
+        fs.appendFileSync(extFile, '"' + safeTitle + '","' + safeComp + '","' + currentUrl + '"\n');
+    } catch(e) {
+        console.error('  [External] Failed to save external URL: ', e.message);
     }
-
-    // Final check after all iterations
-    const finalText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
-    if (isSuccessPage(finalText)) {
-      return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal` };
-    }
-
-    return {
-      status: 'external_visited',
-      notes: `Form auto-filled on ${ats.toUpperCase()} portal — manual action may be required`,
-    };
+    
+    return { status: 'skipped', notes: 'Saved external URL for manual application' };
   }
 
   // ── Click Apply / Apply Now button ─────────────────────────────────────────
