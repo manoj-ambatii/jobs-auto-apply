@@ -762,6 +762,24 @@ class NaukriApplicant {
               const card = a.closest(
                 'div.srp-jobtuple-wrapper, div.jobTuple, article, [class*="jobTuple"], [class*="job-tuple"]'
               ) || a.parentElement?.parentElement;
+              
+              let ageDays = 0;
+              let ageText = '';
+              if (card) {
+                  const cardText = (card.innerText || '').toLowerCase();
+                  const ageMatch = cardText.match(/(\d+)\s*(days?|months?|years?)\s*ago/i);
+                  if (ageMatch) {
+                      ageText = ageMatch[0];
+                      const num = parseInt(ageMatch[1], 10);
+                      if (ageMatch[2].includes('month')) ageDays = num * 30;
+                      else if (ageMatch[2].includes('year')) ageDays = num * 365;
+                      else ageDays = num;
+                  } else if (cardText.includes('today') || cardText.includes('just now')) {
+                      ageDays = 0;
+                      ageText = 'Today';
+                  }
+              }
+
               const text = (sel) => card?.querySelector(sel)?.innerText?.trim() || '';
               return {
                 title: a.innerText.trim(),
@@ -770,6 +788,8 @@ class NaukriApplicant {
                          text('span.subTitle') || 'Unknown',
                 location: text('span.locWdth, .loc, .locations span, [class*="location"]') ||
                           text('.styles_locations__yRPSz') || 'India',
+                ageDays,
+                ageText
               };
             }).filter((j) => j.title && j.url && j.url.startsWith('http'));
           }).catch(() => []);
@@ -782,8 +802,15 @@ class NaukriApplicant {
           console.log(`[Naukri] Found ${jobCards.length} jobs on page ${p}`);
 
           // Process each job card
+          const maxJobAge = parseInt(process.env.JOB_AGE_CAP_DAYS || '30', 10);
+          
           for (const job of jobCards) {
             if (appliedCount >= this.options.limit) break;
+
+            if (job.ageDays > maxJobAge) {
+               console.log(`  ⏩ [Filter] Skipping overly old job (${job.ageText || 'Unknown age'}): ${job.title} @ ${job.company}`);
+               continue;
+            }
 
             // ── Pre-checks ───────────────────────────────────────────────
             if (tracker.has(job.url)) {
