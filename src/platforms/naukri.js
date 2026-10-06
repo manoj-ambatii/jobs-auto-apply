@@ -353,17 +353,23 @@ class NaukriApplicant {
 
       if (selected) {
         await this.sleep(600);
-        // Click Send / Next / Submit button inside chatbot
-        await page.evaluate(() => {
-          const cb = document.querySelector('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]');
-          if (!cb) return;
-          const sendBtn = cb.querySelector(
-            '[class*="sendMsg"], button[type="submit"], [class*="send-btn"], ' +
-            'button:has-text("Save"), button:has-text("Submit"), button:has-text("Send"), ' +
-            'button:has-text("Next"), button.blue-btn, [class*="btn-primary"]'
-          );
-          if (sendBtn) sendBtn.click();
-        }).catch(() => {});
+        // Click Send / Next / Submit / Save button inside chatbot using Playwright Locators
+        try {
+          const cb = page.locator('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]').first();
+          const btn = cb.locator('button:has-text("Save"), button:has-text("Submit"), button:has-text("Send"), button:has-text("Next"), [class*="sendMsg"], button[type="submit"], [class*="send-btn"], button.blue-btn, [class*="btn-primary"]').first();
+          
+          if (await btn.isVisible({ timeout: 1000 })) {
+            await btn.scrollIntoViewIfNeeded();
+            await btn.click({ timeout: 2000 });
+          } else {
+            // Fallback: search the whole page if it's rendered outside the drawer box
+            const globalBtn = page.locator('button:has-text("Save"), button:has-text("Submit")').first();
+            if (await globalBtn.isVisible({ timeout: 1000 })) {
+              await globalBtn.scrollIntoViewIfNeeded();
+              await globalBtn.click({ timeout: 2000 });
+            }
+          }
+        } catch (e) {}
         await this.sleep(1000);
         continue;
       }
@@ -396,11 +402,23 @@ class NaukriApplicant {
         await this.sleep(500);
         await page.keyboard.press('Enter').catch(() => {});
         await this.sleep(500);
-        // Also try clicking send button
-        await page.evaluate(() => {
-          const cb = document.querySelector('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]');
-          cb?.querySelector('[class*="sendMsg"], button[type="submit"], [class*="send-btn"], button.blue-btn')?.click();
-        }).catch(() => {});
+        // Also try clicking send/save button using Playwright Locators
+        try {
+          const cb = page.locator('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]').first();
+          const btn = cb.locator('button:has-text("Save"), button:has-text("Submit"), button:has-text("Send"), button:has-text("Next"), [class*="sendMsg"], button[type="submit"], [class*="send-btn"], button.blue-btn, [class*="btn-primary"]').first();
+          
+          if (await btn.isVisible({ timeout: 1000 })) {
+            await btn.scrollIntoViewIfNeeded();
+            await btn.click({ timeout: 2000 });
+          } else {
+            // Fallback: search the whole page if it's rendered outside the drawer box
+            const globalBtn = page.locator('button:has-text("Save"), button:has-text("Submit")').first();
+            if (await globalBtn.isVisible({ timeout: 1000 })) {
+              await globalBtn.scrollIntoViewIfNeeded();
+              await globalBtn.click({ timeout: 2000 });
+            }
+          }
+        } catch (e) {}
         await this.sleep(800);
       } else {
         // Nothing matched — wait one more cycle, chatbot may still be loading
