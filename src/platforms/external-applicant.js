@@ -183,7 +183,9 @@ class ExternalApplicant {
   }
 
   /**
-   * Main form interaction logic across all ATS types
+   * Main form interaction logic across all ATS types.
+   * ACCURACY: Only returns status:'applied' when the external site
+   * explicitly confirms submission. Otherwise returns 'external_visited'.
    */
   async executeApplication(page, job) {
     // 1. Detect ATS type
@@ -192,92 +194,131 @@ class ExternalApplicant {
     console.log(`  [ExternalApplicant] Detected ATS Engine: ${ats.toUpperCase()}`);
 
     // 2. Check if blacklisted company portal
-    const pageDetails = await page.evaluate(() => (document.title || '') + ' ' + (document.body?.innerText?.slice(0, 1000) || '')).catch(() => '');
+    const pageDetails = await page.evaluate(() =>
+      (document.title || '') + ' ' + (document.body?.innerText?.slice(0, 1000) || '')
+    ).catch(() => '');
     if (isBlacklistedCompany(job.company, pageDetails, currentUrl)) {
-      console.log(`  [ExternalApplicant] Detected excluded company portal (${job.company || 'Infosys'}). Skipping.`);
-      return { status: 'skipped', notes: `Excluded company: ${job.company || 'Infosys'} (interview already completed)` };
+      console.log(`  [ExternalApplicant] Excluded company portal (${job.company || 'Infosys'}). Skipping.`);
+      return { status: 'skipped', notes: `Excluded company: ${job.company || 'Infosys'} (blacklisted)` };
     }
 
-    // 3. Check if already applied
+    // 3. Check if already applied on this portal
     const alreadyApplied = await page.evaluate(() => {
       const text = (document.body ? document.body.innerText : '').toLowerCase();
       return /already applied|application submitted|thank you for applying|you have already submitted/i.test(text);
     }).catch(() => false);
-
     if (alreadyApplied) {
       return { status: 'already_applied', notes: 'Already applied on external portal' };
     }
 
-    // 3. Look for "Apply" / "Apply Now" button to transition to application form
+    // 4. Click initial Apply button to get to the application form
     await this.clickInitialApplyButton(page);
-    await this.sleep(2500);
+    await this.sleep(3000);
 
-    // 4. Handle login / registration if required (e.g. Workday / Taleo)
+    // 5. Handle login / registration gates (e.g. Workday / Taleo)
     await this.handleAuthOrAccountCreation(page);
+    await this.sleep(2000);
 
-    // 5. Multi-step form completion loop (up to 5 steps)
+    // 6. Multi-step form completion loop (up to 10 steps for complex ATS)
     let isSuccess = false;
-    let lastStepState = '';
+    const SUCCESS_TEXTS = [
+      /application\s*submitted/i,
+      /thank\s*you\s*for\s*applying/i,
+      /successfully\s*applied/i,
+      /application\s*(?:has\s*been\s*)?(?:received|sent|submitted)/i,
+      /we\s*(?:have\s*)?received\s*your\s*application/i,
+      /congratulations/i,
+      /your\s*application\s*is\s*(?:complete|submitted)/i,
+    ];
 
-    for (let step = 1; step <= 5; step++) {
-      console.log(`  [ExternalApplicant] Processing application step ${step}...`);
+    for (let step = 1; step <= 10; step++) {
+      console.log(`  [ExternalApplicant] Form step ${step} — filling fields...`);
 
-      // A. Upload resume if file input is visible
+      // A. Upload resume if a file input is visible on this step
       await this.handleResumeUpload(page);
 
-      // B. Autofill personal and contact details
+      // B. Autofill all candidate details
       await this.autofillCandidateDetails(page);
 
-      // C. Answer radio buttons, checkboxes, and select dropdowns
+      // C. Answer radio buttons, checkboxes, selects, screening questions
       await this.handleOptionsAndScreeningQuestions(page);
 
-      // D. Check for CAPTCHA
+      // D. Short wait after filling so JS validators can process
+      await this.sleep(1500);
+
+      // E. Handle CAPTCHA
       await this.handleCaptcha(page);
 
-      // E. Check for OTP / Verification Code
+      // F. Handle OTP email verification
       await this.handleEmailOtp(page);
 
-      // F. Check if final submission button exists
+      // G. Check for success text (might appear before submit is clicked)
+      const midStepText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+      if (SUCCESS_TEXTS.some((p) => p.test(midStepText))) {
+        isSuccess = true;
+        console.log('  [ExternalApplicant] ✅ Success confirmation detected mid-step!');
+        break;
+      }
+
+      // H. Try to click Submit or Next
       const submitResult = await this.attemptSubmitOrNext(page);
+      console.log(`  [ExternalApplicant] Step ${step} button action: ${submitResult.type}`);
+
       if (submitResult.type === 'submitted') {
-        await this.sleep(4000);
+        // Wait for page to load the response after submission
+        await this.sleep(5000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+        await this.sleep(2000);
+
         const confirmText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
-        if (
-          /application submitted|thank you|successfully|received your application|applied|congratulations/i.test(
-            confirmText
-          )
-        ) {
+        if (SUCCESS_TEXTS.some((p) => p.test(confirmText))) {
           isSuccess = true;
-          break;
+          console.log('  [ExternalApplicant] ✅ Application confirmed after submit click!');
+        } else {
+          // Check if we're on yet another step page
+          const stillHasForm = await page.evaluate(() =>
+            document.querySelectorAll('input:not([type="hidden"]), select, textarea').length > 0
+          ).catch(() => false);
+          if (stillHasForm) {
+            console.log('  [ExternalApplicant] More form fields found after submit click. Continuing...');
+            continue;
+          }
         }
+        break;
+
       } else if (submitResult.type === 'next') {
-        await this.sleep(2500);
+        // Wait for next step to load
+        await this.sleep(3000);
+        await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
         continue;
+
       } else {
-        // No submit or next button found or reached end
+        // No submit or next button found
+        const noButtonText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+        if (SUCCESS_TEXTS.some((p) => p.test(noButtonText))) {
+          isSuccess = true;
+        }
         break;
       }
     }
 
-    // Final verification
-    const finalCheck = await page.evaluate(() => {
-      const text = (document.body ? document.body.innerText : '').toLowerCase();
-      const hasSuccessText = /application submitted|thank you for applying|successfully applied|application has been submitted|application received/i.test(text);
-      return hasSuccessText;
-    }).catch(() => false);
+    // Final verification check
+    const finalText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
+    const finalSuccess = SUCCESS_TEXTS.some((p) => p.test(finalText));
 
-    if (isSuccess || finalCheck) {
-      console.log('  [ExternalApplicant] Application successfully submitted!');
+    if (isSuccess || finalSuccess) {
+      console.log('  [ExternalApplicant] ✅ Application successfully submitted!');
       return {
         status: 'applied',
         notes: `External portal application submitted successfully (${ats.toUpperCase()})`,
       };
     }
 
-    // If form was partially completed or required proprietary login/assessment
+    // Form was partially completed or portal needs manual action
+    console.log('  [ExternalApplicant] ⚠️  No explicit success confirmation — recording as external_visited.');
     return {
       status: 'external_visited',
-      notes: `Form auto-filled on ${ats.toUpperCase()} portal. Review/Submit completed.`,
+      notes: `Form auto-filled on ${ats.toUpperCase()} portal — awaiting manual review/submit if required.`,
     };
   }
 
@@ -394,7 +435,7 @@ class ExternalApplicant {
       fullName: cand.identity.name,
       email: cand.identity.email,
       phone: cand.identity.phone,
-      fullPhone: cand.identity.countryCode + cand.identity.phone,
+      fullPhone: (cand.identity.countryCode || '') + cand.identity.phone,
       location: cand.identity.location,
       city: cand.identity.city,
       state: cand.identity.state,
@@ -406,93 +447,110 @@ class ExternalApplicant {
       portfolioUrl: cand.identity.portfolioUrl || cand.identity.githubUrl,
       company: cand.currentEmployment.employer,
       title: cand.currentEmployment.title,
-      totalExp: cand.currentEmployment.totalExperienceYears,
-      currentCtc: cand.compensationAndNotice.currentCtcLakhs,
-      expectedCtc: cand.compensationAndNotice.expectedCtcLakhs,
-      noticePeriod: cand.compensationAndNotice.noticePeriodDays,
+      totalExp: String(cand.currentEmployment.totalExperienceYears),
+      currentCtc: String(cand.compensationAndNotice.currentCtcLakhs),
+      expectedCtc: String(cand.compensationAndNotice.expectedCtcLakhs),
+      noticePeriod: String(cand.compensationAndNotice.noticePeriodDays),
       institution: cand.education.institution,
       degree: cand.education.degree,
       discipline: cand.education.branch,
-      graduationYear: cand.education.graduationYear,
-      gpa: cand.education.gpa,
+      graduationYear: String(cand.education.graduationYear),
+      gpa: String(cand.education.gpa),
       summary: cand.currentEmployment.summary,
     };
 
-    await page.evaluate((p) => {
-      const setValue = (selector, val) => {
-        const elements = Array.from(document.querySelectorAll(selector));
-        for (const el of elements) {
-          if (!el.value || el.value.trim() === '') {
-            el.focus();
-            el.value = val;
-            el.dispatchEvent(new Event('input', { bubbles: true }));
-            el.dispatchEvent(new Event('change', { bubbles: true }));
+    // Helper: fill a Playwright locator if it's visible and empty (or only has placeholder text)
+    const fillField = async (selector, value) => {
+      if (!value) return;
+      try {
+        const els = await page.$$(selector);
+        for (const el of els) {
+          const visible = await el.isVisible().catch(() => false);
+          if (!visible) continue;
+          const current = await el.inputValue().catch(() => '');
+          const placeholder = await el.getAttribute('placeholder').catch(() => '');
+          // Only fill if empty OR if value matches placeholder (i.e. not yet filled)
+          if (!current || current === placeholder) {
+            await el.click({ force: true }).catch(() => {});
+            await el.fill(value).catch(async () => {
+              // Fallback for inputs that don't support fill (e.g. contenteditable)
+              await el.evaluate((node, val) => {
+                node.value = val;
+                node.dispatchEvent(new Event('input', { bubbles: true }));
+                node.dispatchEvent(new Event('change', { bubbles: true }));
+              }, value).catch(() => {});
+            });
           }
         }
-      };
+      } catch {
+        // Ignore individual field errors
+      }
+    };
 
-      // First & Last Name
-      setValue('input[name*="first" i], input[id*="first" i], input[placeholder*="first" i]', p.firstName);
-      setValue('input[name*="last" i], input[id*="last" i], input[placeholder*="last" i]', p.lastName);
-      setValue('input[name*="full" i], input[id*="full" i], input[name="name" i], input[id="name" i], input[placeholder*="full name" i]', p.fullName);
+    // First & Last Name
+    await fillField('input[name*="first" i], input[id*="first" i], input[placeholder*="first" i]', profile.firstName);
+    await fillField('input[name*="last" i], input[id*="last" i], input[placeholder*="last" i]', profile.lastName);
+    await fillField('input[name="name" i], input[id="name" i], input[placeholder*="full name" i], input[name*="full" i]:not([name*="fullstack" i])', profile.fullName);
 
-      // Email
-      setValue('input[type="email"], input[name*="email" i], input[id*="email" i], input[placeholder*="email" i]', p.email);
+    // Email
+    await fillField('input[type="email"], input[name*="email" i], input[id*="email" i], input[placeholder*="email" i]', profile.email);
 
-      // Phone
-      setValue('input[type="tel"], input[name*="phone" i], input[id*="phone" i], input[name*="mobile" i], input[placeholder*="phone" i]', p.phone);
+    // Phone
+    await fillField('input[type="tel"], input[name*="phone" i], input[id*="phone" i], input[name*="mobile" i], input[placeholder*="phone" i]', profile.phone);
 
-      // Location / Address
-      setValue('input[name*="city" i], input[id*="city" i]', p.city);
-      setValue('input[name*="state" i], input[id*="state" i]', p.state);
-      setValue('input[name*="zip" i], input[id*="zip" i], input[name*="postal" i], input[id*="postal" i]', p.postalCode);
-      setValue('input[name*="address" i], input[id*="address" i]', p.address);
+    // Location / Address
+    await fillField('input[name*="city" i], input[id*="city" i]', profile.city);
+    await fillField('input[name*="state" i], input[id*="state" i]', profile.state);
+    await fillField('input[name*="zip" i], input[id*="zip" i], input[name*="postal" i], input[id*="postal" i]', profile.postalCode);
+    await fillField('input[name*="address" i]:not([name*="email" i]), input[id*="address" i]:not([id*="email" i])', profile.address);
 
-      // Links (LinkedIn / GitHub / Website)
-      setValue('input[name*="linkedin" i], input[id*="linkedin" i], input[placeholder*="linkedin" i]', p.linkedinUrl);
-      setValue('input[name*="github" i], input[id*="github" i], input[placeholder*="github" i]', p.githubUrl);
-      setValue('input[name*="website" i], input[id*="website" i], input[name*="portfolio" i], input[id*="portfolio" i]', p.portfolioUrl);
+    // Social links
+    await fillField('input[name*="linkedin" i], input[id*="linkedin" i], input[placeholder*="linkedin" i]', profile.linkedinUrl);
+    await fillField('input[name*="github" i], input[id*="github" i], input[placeholder*="github" i]', profile.githubUrl);
+    await fillField('input[name*="website" i], input[id*="website" i], input[name*="portfolio" i]', profile.portfolioUrl);
 
-      // Employment
-      setValue('input[name*="company" i], input[id*="company" i], input[name*="employer" i]', p.company);
-      setValue('input[name*="title" i], input[id*="title" i], input[name*="designation" i]', p.title);
-      setValue('input[name*="experience" i], input[name*="exp" i], input[id*="experience" i]', p.totalExp);
-      setValue('input[name*="notice" i], input[id*="notice" i]', p.noticePeriod);
+    // Employment details
+    await fillField('input[name*="company" i], input[id*="company" i], input[name*="employer" i], input[id*="employer" i]', profile.company);
+    await fillField('input[name*="title" i], input[id*="title" i], input[name*="designation" i]', profile.title);
+    await fillField('input[name*="experience" i]:not([name*="java" i]):not([name*="spring" i]), input[name*="exp" i], input[id*="experience" i]', profile.totalExp);
+    await fillField('input[name*="notice" i], input[id*="notice" i]', profile.noticePeriod);
 
-      // Salary / CTC
-      setValue('input[name*="current" i][name*="ctc" i], input[name*="current" i][name*="salary" i]', p.currentCtc);
-      setValue('input[name*="expected" i][name*="ctc" i], input[name*="expected" i][name*="salary" i]', p.expectedCtc);
+    // Salary / CTC
+    await fillField('input[name*="current"][name*="ctc" i], input[name*="current"][name*="salary" i]', profile.currentCtc);
+    await fillField('input[name*="expected"][name*="ctc" i], input[name*="expected"][name*="salary" i]', profile.expectedCtc);
 
-      // Education
-      setValue('input[name*="school" i], input[name*="college" i], input[name*="university" i], input[name*="institution" i]', p.institution);
-      setValue('input[name*="degree" i], input[id*="degree" i]', p.degree);
-      setValue('input[name*="discipline" i], input[name*="major" i], input[name*="branch" i]', p.discipline);
-      setValue('input[name*="grad" i], input[name*="year" i]', p.graduationYear);
-      setValue('input[name*="gpa" i], input[name*="cgpa" i], input[name*="percentage" i]', p.gpa);
+    // Education
+    await fillField('input[name*="school" i], input[name*="college" i], input[name*="university" i], input[name*="institution" i]', profile.institution);
+    await fillField('input[name*="degree" i], input[id*="degree" i]', profile.degree);
+    await fillField('input[name*="discipline" i], input[name*="major" i], input[name*="branch" i]', profile.discipline);
+    await fillField('input[name*="grad" i][name*="year" i], input[name*="year" i][name*="pass" i]', profile.graduationYear);
+    await fillField('input[name*="gpa" i], input[name*="cgpa" i], input[name*="percentage" i]', profile.gpa);
 
-      // Textareas / Summary
-      const textareas = Array.from(document.querySelectorAll('textarea'));
-      textareas.forEach((ta) => {
-        if (!ta.value || ta.value.trim() === '') {
-          const lbl = (ta.name || ta.id || ta.placeholder || '').toLowerCase();
-          if (/summary|cover|about|description/i.test(lbl)) {
-            ta.value = p.summary;
-            ta.dispatchEvent(new Event('input', { bubbles: true }));
-            ta.dispatchEvent(new Event('change', { bubbles: true }));
-          }
+    // Summary / Cover note in textareas
+    try {
+      const textareas = await page.$$('textarea');
+      for (const ta of textareas) {
+        const lbl = await ta.evaluate((el) => (el.name || el.id || el.placeholder || '').toLowerCase()).catch(() => '');
+        if (/summary|cover|about|description/i.test(lbl)) {
+          const current = await ta.inputValue().catch(() => '');
+          if (!current) await ta.fill(profile.summary).catch(() => {});
         }
-      });
-    }, profile).catch(() => {});
+      }
+    } catch {}
   }
 
   async handleOptionsAndScreeningQuestions(page) {
     await page.evaluate(() => {
-      // 1. Consent and Agreement Checkboxes
+      // 1. Consent and Agreement Checkboxes — always check if related to consent/terms
       const checkboxes = Array.from(document.querySelectorAll('input[type="checkbox"]'));
       checkboxes.forEach((cb) => {
-        if (!cb.checked) {
-          const labelText = (cb.closest('label')?.innerText || cb.parentElement?.innerText || cb.name || cb.id || '').toLowerCase();
-          if (/agree|consent|terms|privacy|policy|authorized|confirm|declare|certify|acknowledge/i.test(labelText)) {
+        const labelText = (
+          cb.closest('label')?.innerText ||
+          cb.parentElement?.innerText ||
+          cb.name || cb.id || ''
+        ).toLowerCase();
+        if (/agree|consent|terms|privacy|policy|authorized|confirm|declare|certify|acknowledge/i.test(labelText)) {
+          if (!cb.checked) {
             cb.checked = true;
             cb.click();
             cb.dispatchEvent(new Event('change', { bubbles: true }));
@@ -500,79 +558,109 @@ class ExternalApplicant {
         }
       });
 
-      // 2. Radio questions (Work Auth, Sponsorship, Relocation, Gender)
+      // 2. Radio questions — DO NOT skip groups that already have a checked radio
+      //    because it might be checked on the wrong answer (e.g. "No" when "Yes" is needed)
       const radioGroups = {};
       const radios = Array.from(document.querySelectorAll('input[type="radio"]'));
       radios.forEach((r) => {
-        const name = r.name || 'default';
+        const name = r.name || r.closest('fieldset')?.id || 'group_' + Math.random();
         if (!radioGroups[name]) radioGroups[name] = [];
         radioGroups[name].push(r);
       });
 
       Object.values(radioGroups).forEach((group) => {
-        const hasChecked = group.some((r) => r.checked);
-        if (hasChecked) return;
+        // Get the question context from the nearest ancestor container
+        const questionText = (
+          group[0]?.closest('fieldset, .form-group, [class*="question"], [class*="field"], div')?.innerText || ''
+        ).toLowerCase();
 
-        group.forEach((r) => {
-          const label = (r.closest('label')?.innerText || r.parentElement?.innerText || r.value || '').toLowerCase();
-          const questionText = (r.closest('fieldset, .form-group, div')?.innerText || '').toLowerCase();
+        const selectRadio = (matchFn) => {
+          const target = group.find((r) => {
+            const label = (
+              r.closest('label')?.innerText ||
+              r.parentElement?.innerText ||
+              r.value || ''
+            ).toLowerCase().trim();
+            return matchFn(label, r.value?.toLowerCase() || '');
+          });
+          if (target && !target.checked) {
+            target.checked = true;
+            target.click();
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        };
 
-          // Sponsorship question: "Do you need visa sponsorship?" -> NO
-          if (/sponsorship|sponsor|visa/i.test(questionText)) {
-            if (/^no\b|\bno\b/i.test(label) || r.value.toLowerCase() === 'no') {
-              r.checked = true;
-              r.click();
-              r.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          }
-          // Work authorization question: "Are you authorized to work in India?" -> YES
-          else if (/authorized|legally authorized|eligible to work/i.test(questionText)) {
-            if (/^yes\b|\byes\b/i.test(label) || r.value.toLowerCase() === 'yes') {
-              r.checked = true;
-              r.click();
-              r.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          }
-          // Relocation question: "Are you willing to relocate?" -> YES
-          else if (/relocate|relocation/i.test(questionText)) {
-            if (/^yes\b|\byes\b/i.test(label) || r.value.toLowerCase() === 'yes') {
-              r.checked = true;
-              r.click();
-              r.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          }
-          // Gender -> Male / Prefer not to say
-          else if (/gender/i.test(questionText)) {
-            if (/male|prefer not to say|decline/i.test(label)) {
-              r.checked = true;
-              r.click();
-              r.dispatchEvent(new Event('change', { bubbles: true }));
-            }
-          }
-        });
+        // Sponsorship → No
+        if (/sponsorship|sponsor|visa/i.test(questionText)) {
+          selectRadio((label, val) => /^no\b|\bno$/i.test(label) || val === 'no');
+        }
+        // Work authorization → Yes
+        else if (/authorized|legally\s*authorized|eligible\s*to\s*work|work\s*authorization/i.test(questionText)) {
+          selectRadio((label, val) => /^yes\b|\byes$/i.test(label) || val === 'yes');
+        }
+        // Relocation → Yes
+        else if (/relocat|relocation/i.test(questionText)) {
+          selectRadio((label, val) => /^yes\b|\byes$/i.test(label) || val === 'yes');
+        }
+        // Notice period / immediate joiner → Yes / Immediate
+        else if (/notice\s*period|immediate\s*joiner|available\s*to\s*join/i.test(questionText)) {
+          selectRadio((label, val) =>
+            /^yes\b|\byes$|immediate|0\s*days/i.test(label) || val === 'yes'
+          );
+        }
+        // Currently employed → Yes
+        else if (/currently\s*employed|present\s*employer/i.test(questionText)) {
+          selectRadio((label, val) => /^yes\b|\byes$/i.test(label) || val === 'yes');
+        }
+        // Gender → Male or Prefer not to say
+        else if (/gender/i.test(questionText)) {
+          selectRadio((label) => /^male$|prefer\s*not\s*to\s*say|decline/i.test(label));
+        }
+        // Generic yes/no question → Yes
+        else if (/are\s*you|do\s*you|can\s*you|will\s*you|have\s*you/i.test(questionText)) {
+          selectRadio((label, val) => /^yes\b|\byes$/i.test(label) || val === 'yes');
+        }
       });
 
-      // 3. Dropdowns (select elements)
+      // 3. Dropdowns (select elements) — handle all with smarter label detection
       const selects = Array.from(document.querySelectorAll('select'));
       selects.forEach((sel) => {
-        if (sel.value && sel.selectedIndex > 0) return;
-
         const options = Array.from(sel.options);
-        const label = (sel.name || sel.id || sel.closest('label, .form-group')?.innerText || '').toLowerCase();
+        // Get label from multiple sources
+        const labelEl = sel.id
+          ? document.querySelector(`label[for="${sel.id}"]`)
+          : null;
+        const label = (
+          labelEl?.innerText ||
+          sel.name || sel.id ||
+          sel.closest('label, .form-group, [class*="field"], [class*="question"]')?.innerText || ''
+        ).toLowerCase();
 
-        // Country -> India
+        // Country → India
         if (/country/i.test(label)) {
-          const opt = options.find((o) => /india/i.test(o.text));
-          if (opt) {
+          const opt = options.find((o) => /^india$/i.test(o.text.trim()));
+          if (opt && sel.value !== opt.value) {
             sel.value = opt.value;
             sel.dispatchEvent(new Event('change', { bubbles: true }));
             return;
           }
         }
 
-        // Notice period -> Immediate / 0-15 days / 30 days
+        // Notice period → Immediate / 0 days / 15 days
         if (/notice/i.test(label)) {
-          const opt = options.find((o) => /immediate|0 days|15 days|1 month|30 days/i.test(o.text));
+          const opt = options.find((o) => /immediate|^0\s*days?$|^15\s*days?$/i.test(o.text.trim()));
+          if (opt && sel.value !== opt.value) {
+            sel.value = opt.value;
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+            return;
+          }
+        }
+
+        // Experience → 2 or 2-3 years
+        if (/experience|exp\b/i.test(label)) {
+          // Skip if already meaningfully selected
+          if (sel.value && sel.selectedIndex > 0) return;
+          const opt = options.find((o) => /2\s*[-–to]\s*[34]|2\.5|2\+|^2\s*years?$/i.test(o.text.trim()));
           if (opt) {
             sel.value = opt.value;
             sel.dispatchEvent(new Event('change', { bubbles: true }));
@@ -580,23 +668,23 @@ class ExternalApplicant {
           }
         }
 
-        // Total experience -> 2 years / 2-3 years
-        if (/experience|exp/i.test(label)) {
-          const opt = options.find((o) => /2\s*(?:-|to)\s*3|2\.5|2\+|2 years/i.test(o.text));
-          if (opt) {
+        // Relocation → Yes
+        if (/relocat/i.test(label)) {
+          const opt = options.find((o) => /^yes$/i.test(o.text.trim()));
+          if (opt && sel.value !== opt.value) {
             sel.value = opt.value;
             sel.dispatchEvent(new Event('change', { bubbles: true }));
             return;
           }
         }
 
-        // Relocation -> Yes
-        if (/relocate/i.test(label)) {
-          const opt = options.find((o) => /^yes/i.test(o.text));
+        // Highest qualification / degree
+        if (/qualification|degree|education/i.test(label)) {
+          if (sel.value && sel.selectedIndex > 0) return;
+          const opt = options.find((o) => /b\.?\s*tech|bachelor|b\.?\s*e\b/i.test(o.text));
           if (opt) {
             sel.value = opt.value;
             sel.dispatchEvent(new Event('change', { bubbles: true }));
-            return;
           }
         }
       });
