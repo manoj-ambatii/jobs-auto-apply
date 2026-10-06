@@ -123,6 +123,11 @@ class ExternalApplicant {
         if (/(invalid|incorrect|wrong)\s*(password|credentials|email)/i.test(text)) return 'invalid_credentials';
         if (/(email|account)\s*(already exists|is already registered|already in use|taken)/i.test(text)) return 'login';
 
+        // ── Google SSO / Social Login ─────────────────────────────────────
+        if (/continue\s*with\s*google|sign\s*in\s*with\s*google|login\s*with\s*google/i.test(text)) {
+          return 'google_sso';
+        }
+
         // ── OTP / Verification code screen ────────────────────────────────
         if (
           /enter.{0,20}(otp|code|pin|verification)|one.time.password|verification code|verify your (email|account|identity)/i.test(text)
@@ -338,6 +343,16 @@ class ExternalApplicant {
           console.log('  [External] Clicking Apply / Apply Now button...');
           await this.clickApplyButton(page);
           await this.sleep(3000);
+          break;
+
+        case 'google_sso':
+          console.log('  [External] 🌐 Google SSO option detected. Clicking "Continue with Google"...');
+          await page.evaluate(() => {
+            const btns = Array.from(document.querySelectorAll('button, a, div[role="button"]'));
+            const googleBtn = btns.find(b => /continue\s*with\s*google|sign\s*in\s*with\s*google|login\s*with\s*google/i.test((b.innerText || b.title || '').trim()));
+            if (googleBtn) googleBtn.click();
+          }).catch(() => {});
+          await this.sleep(5000);
           break;
 
         case 'login':
