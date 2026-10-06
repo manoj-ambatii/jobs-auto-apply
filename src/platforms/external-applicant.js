@@ -295,195 +295,91 @@ class ExternalApplicant {
       return { status: 'skipped', notes: `Excluded company: ${job.company} (blacklisted)` };
     }
 
-    // Smart screen-driven loop — up to 15 iterations covering all possible screens
+    // Pure Live AI Agent Loop
     const MAX_ITERATIONS = 15;
     let iteration = 0;
-    let authAttempted = false;
-    let signupAttempted = false;
-    let verificationAttempted = false;
-    let formStepCount = 0;
-    let previousScreen = '';
+    let contextStr = "Initial page load";
     let stuckCount = 0;
+    let lastDomHash = '';
 
     while (iteration < MAX_ITERATIONS) {
       iteration++;
-      await this.sleep(2500);
+      await this.sleep(3000);
 
-      const screen = await this.analyseScreen(page);
+      // Fast heuristic check for success to save API calls
+      const bodyText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
+      if (isSuccessPage(bodyText)) {
+        console.log('  [External] ✅ Application confirmed!');
+        return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal` };
+      }
+      if (/already applied|you have already submitted|you already applied/i.test(bodyText)) {
+        return { status: 'already_applied', notes: 'Already applied on this external portal' };
+      }
+
+      console.log(`\n  [External] 🤖 Engaging Live AI Vision (Iteration ${iteration})...`);
       
-      // Handle stuck state with Live AI Vision
-      if (screen === previousScreen && screen !== 'form') {
+      const aiDecision = await askAiForNextAction(page, contextStr);
+      
+      if (!aiDecision || !aiDecision.actions || aiDecision.actions.length === 0) {
+        console.log('  [External] AI returned no actions. Waiting...');
+        await this.sleep(4000);
+        continue;
+      }
+
+      let actionsExecuted = 0;
+      let actionLog = [];
+
+      for (const actionObj of aiDecision.actions) {
+        if (actionObj.action === 'done') {
+            console.log('  [External] ✅ AI marked application as complete.');
+            return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal (AI confirmed)` };
+        }
+        
+        if (actionObj.action === 'error') {
+            console.log('  [External] ❌ AI encountered an unrecoverable error or invalid credentials.');
+            return { status: 'failed', notes: `AI failed: ${aiDecision.reasoning}` };
+        }
+
+        if (actionObj.action === 'upload_resume') {
+            await this.handleResumeUpload(page);
+            actionLog.push('uploaded_resume');
+            actionsExecuted++;
+            continue;
+        }
+
+        if (actionObj.action === 'fetch_otp') {
+            await this.handleOtpVerification(page);
+            actionLog.push('fetched_otp');
+            actionsExecuted++;
+            continue;
+        }
+
+        const executed = await executeAiAction(page, actionObj);
+        if (executed) {
+            actionLog.push(`${actionObj.action} on ${actionObj.target_id}`);
+            actionsExecuted++;
+        }
+        // Small delay between multiple actions on the same screen (e.g. filling out a form)
+        if (aiDecision.actions.length > 1) {
+            await this.sleep(800);
+        }
+      }
+
+      contextStr = `Last AI reasoning: ${aiDecision.reasoning}. Executed: ${actionLog.join(', ')}`;
+
+      if (actionsExecuted === 0) {
         stuckCount++;
-        if (stuckCount >= 2) {
-          console.log(`  [External] ⚠️ Seem to be stuck on ${screen.toUpperCase()}. Engaging Live AI Vision...`);
-          const aiDecision = await askAiForNextAction(page, `Stuck on screen type: ${screen}`);
-          const executed = await executeAiAction(page, aiDecision);
-          if (executed) {
-             stuckCount = 0; 
-             await this.sleep(4000);
-             continue; // Skip the hardcoded switch this iteration
-          } else if (stuckCount >= 4) {
-             console.log(`  [External] ❌ Live AI could not bypass this block. Aborting to prevent infinite loop.`);
-             return { status: 'failed', notes: `Failed to clear ${screen} screen even with Live AI` };
-          }
+        console.log(`  [External] ⚠️ No actions successfully executed. (Stuck count: ${stuckCount})`);
+        if (stuckCount >= 4) {
+          console.log(`  [External] ❌ Stuck for too long. Aborting to prevent infinite loop.`);
+          return { status: 'failed', notes: 'AI got stuck and could not progress' };
         }
       } else {
         stuckCount = 0;
       }
-      previousScreen = screen;
-
-      console.log(`  [External] Screen ${iteration}: ${screen.toUpperCase()}`);
-
-      // ── Handle each screen type ──────────────────────────────────────────
-      switch (screen) {
-
-        case 'invalid_credentials':
-          console.log('  [External] ⚠️ Invalid login credentials. We cannot proceed without manual intervention.');
-          return { status: 'failed', notes: 'Invalid login credentials or email taken' };
-
-        case 'success':
-          console.log('  [External] ✅ Application confirmed!');
-          return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal` };
-
-        case 'already_applied':
-          console.log('  [External] Already applied to this job.');
-          return { status: 'already_applied', notes: 'Already applied on this external portal' };
-
-        case 'apply_button':
-          console.log('  [External] Clicking Apply / Apply Now button...');
-          await this.clickApplyButton(page);
-          await this.sleep(3000);
-          break;
-
-        case 'google_sso':
-          console.log('  [External] 🌐 Google SSO option detected. Clicking "Continue with Google"...');
-          await page.evaluate(() => {
-            const btns = Array.from(document.querySelectorAll('button, a, div[role="button"]'));
-            const googleBtn = btns.find(b => /continue\s*with\s*google|sign\s*in\s*with\s*google|login\s*with\s*google/i.test((b.innerText || b.title || '').trim()));
-            if (googleBtn) googleBtn.click();
-          }).catch(() => {});
-          await this.sleep(5000);
-          break;
-
-        case 'login':
-          if (authAttempted) {
-            console.log('  [External] Login re-attempted. Waiting for page to change...');
-            await this.sleep(3000);
-            break;
-          }
-          console.log('  [External] 🔐 Login screen detected. Filling credentials...');
-          await this.handleLogin(page);
-          authAttempted = true;
-          await this.sleep(4000);
-          // After login, handle potential OTP/email-verify next
-          break;
-
-        case 'signup':
-          if (signupAttempted) {
-            console.log('  [External] Signup re-attempted. Waiting...');
-            await this.sleep(3000);
-            break;
-          }
-          console.log('  [External] 📝 Signup screen detected. Creating account...');
-          await this.handleSignup(page);
-          signupAttempted = true;
-          await this.sleep(5000);
-          break;
-
-        case 'otp':
-          if (verificationAttempted) {
-            // Try once more with a fresh OTP fetch
-            console.log('  [External] OTP screen still showing. Retrying Gmail fetch...');
-            await this.sleep(5000);
-          }
-          console.log('  [External] 📩 OTP verification screen. Fetching code from Gmail...');
-          await this.handleOtpVerification(page);
-          verificationAttempted = true;
-          await this.sleep(4000);
-          break;
-
-        case 'email_verification':
-          if (verificationAttempted) {
-            await this.sleep(5000);
-            break;
-          }
-          console.log('  [External] 📧 Email verification required. Fetching magic link or OTP from Gmail...');
-          const verified = await this.handleEmailVerification(page);
-          if (verified) {
-            verificationAttempted = true;
-            await this.sleep(5000);
-          } else {
-            // Wait longer for email to arrive
-            console.log('  [External] Waiting 15s for verification email to arrive...');
-            await this.sleep(15000);
-            const retryVerified = await this.handleEmailVerification(page);
-            verificationAttempted = true;
-            await this.sleep(4000);
-          }
-          break;
-
-        case 'form':
-          formStepCount++;
-          console.log(`  [External] 📋 Application form detected (form step ${formStepCount})...`);
-
-          // Upload resume
-          await this.handleResumeUpload(page);
-          // Fill personal details
-          await this.autofillCandidateDetails(page);
-          // Answer screening questions
-          await this.handleOptionsAndScreeningQuestions(page);
-          // Short wait for JS validation
-          await this.sleep(1500);
-          // Handle CAPTCHA
-          await this.handleCaptcha(page);
-          // Handle OTP if it appears mid-form
-          await this.handleOtpIfPresent(page);
-
-          // Check for mid-form success
-          const midFormText = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
-          if (isSuccessPage(midFormText)) {
-            return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal (mid-form confirmation)` };
-          }
-
-          // Try to proceed to next step or submit
-          const btnResult = await this.clickNextOrSubmit(page);
-          console.log(`  [External] Form action: ${btnResult}`);
-
-          if (btnResult === 'submitted') {
-            await this.sleep(5000);
-            await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
-            await this.sleep(2000);
-          } else if (btnResult === 'next') {
-            await this.sleep(3000);
-            await page.waitForLoadState('domcontentloaded', { timeout: 10000 }).catch(() => {});
-          } else if (btnResult === 'none') {
-            // No button found – check if already success
-            const noBtn = await page.evaluate(() => document.body?.innerText || '').catch(() => '');
-            if (isSuccessPage(noBtn)) {
-              return { status: 'applied', notes: `Applied on ${ats.toUpperCase()} portal` };
-            }
-            // Try scrolling down to reveal buttons
-            await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-            await this.sleep(2000);
-          }
-          break;
-
-        default: // 'unknown'
-          console.log(`  [External] 🤖 Unknown screen detected on iteration ${iteration}. Engaging Live AI Vision...`);
-          
-          const aiDecision = await askAiForNextAction(page, 'Unknown screen layout');
-          const executed = await executeAiAction(page, aiDecision);
-          
-          if (!executed) {
-            console.log(`  [External] AI fallback failed. Trying manual scroll and standard apply button...`);
-            await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-            const fallbackClicked = await this.clickApplyButton(page);
-            await this.sleep(3000);
-          } else {
-            await this.sleep(4000);
-          }
-          break;
-      }
+      
+      // Give the page time to react/navigate before taking the next screenshot
+      await this.sleep(4000);
     }
 
     // Final check after all iterations

@@ -2,14 +2,14 @@ const { GoogleGenerativeAI, SchemaType } = require("@google/generative-ai");
 const config = require('../../config');
 
 /**
- * Live AI Vision Agent using Google Gemini
- * Analyzes the current page (DOM + Screenshot) and dictates the exact next action.
+ * Pure Live AI Vision Agent using Google Gemini 3.8 Flash
+ * Analyzes the entire page and returns a list of actions to perform.
  */
 
 async function askAiForNextAction(page, contextStr = '') {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey || apiKey === 'your_gemini_api_key_here') {
-        console.log('  [AI] ⚠️ GEMINI_API_KEY is not set in .env! Skipping Live AI Assistance.');
+        console.log('  [AI] ⚠️ GEMINI_API_KEY is not set in .env! Cannot run AI Agent.');
         return null;
     }
 
@@ -21,24 +21,34 @@ async function askAiForNextAction(page, contextStr = '') {
             responseSchema: {
                 type: SchemaType.OBJECT,
                 properties: {
-                    action: { 
-                        type: SchemaType.STRING, 
-                        description: "One of: 'click', 'fill', 'wait', 'done', 'error'" 
-                    },
-                    target_id: { 
-                        type: SchemaType.STRING,
-                        description: "The data-ai-id of the target element from the provided DOM list"
-                    },
-                    value: { 
-                        type: SchemaType.STRING,
-                        description: "If action is 'fill', the text to type into the element"
-                    },
                     reasoning: { 
                         type: SchemaType.STRING,
-                        description: "Brief explanation of why this action was chosen"
+                        description: "Explain what this screen is and your overall plan for it"
+                    },
+                    actions: {
+                        type: SchemaType.ARRAY,
+                        description: "List of actions to perform on this screen in order",
+                        items: {
+                            type: SchemaType.OBJECT,
+                            properties: {
+                                action: { 
+                                    type: SchemaType.STRING, 
+                                    description: "One of: 'click', 'fill', 'upload_resume', 'fetch_otp', 'done', 'error'" 
+                                },
+                                target_id: { 
+                                    type: SchemaType.STRING,
+                                    description: "The data-ai-id of the target element (e.g. ai-node-3). Required for click and fill."
+                                },
+                                value: { 
+                                    type: SchemaType.STRING,
+                                    description: "If action is 'fill', the exact text to type into the element"
+                                }
+                            },
+                            required: ["action"]
+                        }
                     }
                 },
-                required: ["action", "reasoning"]
+                required: ["reasoning", "actions"]
             }
         }
     });
@@ -60,7 +70,6 @@ async function askAiForNextAction(page, contextStr = '') {
                     continue;
                 }
                 
-                // Assign a unique ID for the AI to reference
                 const aiId = `ai-node-${id++}`;
                 el.setAttribute('data-ai-id', aiId);
 
@@ -74,7 +83,6 @@ async function askAiForNextAction(page, contextStr = '') {
 
         if (interactiveDom.length === 0) {
             console.log('  [AI] No interactive elements found on the page.');
-            return null;
         }
 
         // 2. Take a screenshot to give the AI spatial awareness
@@ -83,41 +91,47 @@ async function askAiForNextAction(page, contextStr = '') {
 
         // 3. Construct the precise prompt
         const prompt = `
-You are an autonomous Job Application Assistant.
-Your goal is to navigate the screen and advance the job application.
+You are an autonomous Job Application Assistant navigating a company career site.
+Your goal is to process the CURRENT SCREEN by providing an array of actions to fill out fields, click buttons, or handle dialogs.
 
 Candidate Profile: 
-- Name: ${config.candidate.identity.name || 'Manoj Ambati'}
+- First Name: ${config.candidate.identity.firstName || 'Manoj'}
+- Last Name: ${config.candidate.identity.lastName || 'Ambati'}
+- Full Name: ${config.candidate.identity.name || 'Manoj Ambati'}
 - Email: ${config.candidate.identity.email}
 - Phone: ${config.candidate.identity.phone}
 - Location: ${config.candidate.identity.city}, ${config.candidate.identity.country}
 - Experience: ${config.candidate.currentEmployment.totalExperienceYears || 2.5} years in Java/Spring Boot
 - Notice Period: ${config.candidate.compensationAndNotice.noticePeriodDays} days
+- Current CTC: ${config.candidate.compensationAndNotice.currentCtcLakhs} LPA
+- Expected CTC: ${config.candidate.compensationAndNotice.expectedCtcLakhs} LPA
+- Education: ${config.candidate.education.degree} in ${config.candidate.education.branch} from ${config.candidate.education.institution}
 
-Here is a list of interactive elements currently visible on the screen:
+Visible Interactive Elements:
 ${JSON.stringify(interactiveDom, null, 2)}
 
 Context/Previous State: ${contextStr || 'Fresh page'}
 
-Look at the screenshot and the list of elements. Determine the single most important next action to take to advance the application (e.g., clicking a login button, selecting "Continue with Google", filling an email field). 
-
 IMPORTANT RULES:
-1. Always prefer clicking "Continue with Google" or "Sign in with Google" if it is available over entering emails/passwords.
-2. If it is asking for an OTP, return action: "wait" (so our background script can fetch it).
-3. Ensure the 'target_id' exactly matches an 'id' from the list above.
+1. You can return MULTIPLE actions in the 'actions' array to fill out an entire form at once.
+2. If the screen has a file input for a Resume/CV, include {"action": "upload_resume"}.
+3. If the screen asks for an OTP/Verification code sent to email/phone, include {"action": "fetch_otp"}.
+4. Always prefer clicking "Continue with Google" or "Sign in with Google" if available over creating manual accounts.
+5. If the application is confirmed as successfully submitted, include {"action": "done"}.
+6. Ensure the 'target_id' exactly matches an 'id' from the list above.
 
-Return the JSON payload.
+Evaluate the screenshot and the DOM. Return your reasoning and the array of actions to perform.
 `;
         
-        console.log('  [AI] 🤔 Asking Gemini 3.8 Flash what to do next...');
+        console.log('  [AI] 🤔 Asking Gemini 3.8 Flash to analyze the entire screen...');
         const result = await model.generateContent([
             prompt, 
             { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
         ]);
 
         const responseData = JSON.parse(result.response.text());
-        console.log(`  [AI] 💡 Decision: [${responseData.action.toUpperCase()}] on target ${responseData.target_id || 'N/A'}`);
         console.log(`  [AI] 🧠 Reasoning: ${responseData.reasoning}`);
+        console.log(`  [AI] ⚡ Planned Actions: ${responseData.actions.length}`);
         
         return responseData;
 
@@ -128,40 +142,31 @@ Return the JSON payload.
 }
 
 /**
- * Executes the JSON instruction returned by Gemini via Playwright
+ * Executes a single AI action via Playwright
  */
 async function executeAiAction(page, actionObj) {
     if (!actionObj) return false;
-
-    if (actionObj.action === 'wait') {
-        console.log('  [AI] Action is "wait". Pausing for 5 seconds...');
-        await new Promise(r => setTimeout(r, 5000));
-        return true;
-    }
     
-    if (actionObj.action === 'done' || actionObj.action === 'error') {
-        return false;
-    }
-
     if (actionObj.target_id) {
         try {
             const locator = page.locator(`[data-ai-id="${actionObj.target_id}"]`).first();
             if (await locator.isVisible().catch(() => false)) {
                 
                 if (actionObj.action === 'click') {
-                    // Force click in case it's covered by a label
                     await locator.click({ force: true });
                     console.log(`  [AI] ✅ Clicked element: ${actionObj.target_id}`);
                     return true;
                 } 
                 
                 else if (actionObj.action === 'fill') {
+                    // Bypass react event issues
+                    await locator.click({ force: true }).catch(()=>{});
                     await locator.fill(actionObj.value || '');
                     console.log(`  [AI] ✅ Filled element ${actionObj.target_id} with: "${actionObj.value}"`);
                     return true;
                 }
             } else {
-                console.log(`  [AI] ⚠️ Element ${actionObj.target_id} is no longer visible.`);
+                console.log(`  [AI] ⚠️ Element ${actionObj.target_id} is not visible.`);
             }
         } catch (err) {
             console.log(`  [AI] ❌ Failed to execute action on ${actionObj.target_id}:`, err.message);
