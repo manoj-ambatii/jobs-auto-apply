@@ -11,10 +11,11 @@ async function testGemini() {
         }
         console.log('✅ Found GEMINI_API_KEY in .env (Length: ' + apiKey.length + ')');
         
+        const targetModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
         const genAI = new GoogleGenerativeAI(apiKey);
-        const model = genAI.getGenerativeModel({ model: 'gemini-3.8-flash' });
+        const model = genAI.getGenerativeModel({ model: targetModel });
         
-        console.log('🤖 Sending a test ping to Gemini 3.8 Flash...');
+        console.log(`🤖 Sending a test ping to ${targetModel}...`);
         const result = await model.generateContent("Reply with exactly one word: 'READY'");
         const responseText = result.response.text().trim();
         

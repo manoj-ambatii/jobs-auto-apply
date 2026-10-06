@@ -13,9 +13,10 @@ async function askAiForNextAction(page, contextStr = '') {
         return null;
     }
 
+    const targetModel = process.env.GEMINI_MODEL || 'gemini-3.8-flash';
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
-        model: "gemini-3.8-flash",
+        model: targetModel,
         generationConfig: {
             responseMimeType: "application/json",
             responseSchema: {
@@ -123,7 +124,7 @@ IMPORTANT RULES:
 Evaluate the screenshot and the DOM. Return your reasoning and the array of actions to perform.
 `;
         
-        console.log('  [AI] 🤔 Asking Gemini 3.8 Flash to analyze the entire screen...');
+        console.log(`  [AI] 🤔 Asking ${targetModel} to analyze the entire screen...`);
         
         let result;
         let retries = 3;
