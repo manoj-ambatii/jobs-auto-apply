@@ -116,10 +116,11 @@ Context/Previous State: ${contextStr || 'Fresh page'}
 IMPORTANT RULES:
 1. You can return MULTIPLE actions in the 'actions' array to fill out an entire form at once.
 2. If the screen has a file input for a Resume/CV, include {"action": "upload_resume"}.
-3. If the screen asks for an OTP/Verification code sent to email/phone, include {"action": "fetch_otp"}.
-4. Always prefer clicking "Continue with Google" or "Sign in with Google" if available over creating manual accounts.
-5. If the application is confirmed as successfully submitted, include {"action": "done"}.
-6. Ensure the 'target_id' exactly matches an 'id' from the list above.
+3. If the screen asks for an OTP/Verification code, include {"action": "fetch_otp"}.
+4. Always prefer clicking "Continue with Google" or "Sign in with Google" if available.
+5. NEVER use the Phone/Mobile number for login or OTPs (we cannot receive SMS). ALWAYS click "Login with Email" or enter the Email address instead.
+6. If the application is confirmed as successfully submitted, include {"action": "done"}.
+7. Ensure the 'target_id' exactly matches an 'id' from the list above.
 
 Evaluate the screenshot and the DOM. Return your reasoning and the array of actions to perform.
 `;
