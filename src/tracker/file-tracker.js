@@ -118,6 +118,13 @@ class FileTracker {
     return !!this.cache[key];
   }
 
+  hasApplied(rawUrl) {
+    this.init();
+    if (!rawUrl) return false;
+    const key = this.normalizeUrl(rawUrl);
+    return !!(this.cache[key] && this.cache[key].status === 'APPLIED');
+  }
+
   getStatus(rawUrl) {
     this.init();
     if (!rawUrl) return null;

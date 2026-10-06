@@ -451,7 +451,7 @@ class NaukriApplicant {
    * confirmed success state or we exhaust retries.
    */
   async handlePostApplyModals(page) {
-    const MAX_MODAL_LOOPS = 8;
+    const MAX_MODAL_LOOPS = 12;
 
     for (let loop = 0; loop < MAX_MODAL_LOOPS; loop++) {
       await this.sleep(2500); // wait for modal/page to settle
@@ -461,108 +461,48 @@ class NaukriApplicant {
       if (matchesAny(bodyText, QUOTA_PATTERNS)) return { done: true, result: 'quota_exceeded' };
 
       // --- Check for confirmed success ---
-      if (matchesAny(bodyText, SUCCESS_PATTERNS)) return { done: true, result: 'success' };
+      if (await this.isPageShowingSuccess(page)) return { done: true, result: 'success' };
       const btnApplied = await page.evaluate(() =>
-        Array.from(document.querySelectorAll('button, a, div, span'))
-          .some((el) => /^applied$/i.test((el.innerText || '').trim()))
+        Array.from(document.querySelectorAll("button, a, div, span"))
+          .some((el) => /^applied$/i.test((el.innerText || "").trim()))
       ).catch(() => false);
       if (btnApplied) return { done: true, result: 'success' };
 
-      // --- Check if chatbot opened ---
-      const chatbotOpen = await page.evaluate(() =>
-        !!document.querySelector('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]')
-      ).catch(() => false);
-      if (chatbotOpen) {
-        const cbResult = await this.handleChatbot(page);
-        if (cbResult === 'success') return { done: true, result: 'success' };
-        // Chatbot closed but no confirm - continue outer loop to check for other modals
+      // --- Engage Live AI Vision Agent for Naukri Modal / Chatbot / Screening ---
+      console.log(`  [Naukri] 🤖 Engaging Live AI Vision for Apply Modal (Iteration ${loop + 1})...`);
+      const promptContext = "You are navigating a Naukri.com modal dialog or screening chatbot. If the screen shows a success message indicating the application is complete, return 'done'. If there are questions, select/fill answers and click 'Save', 'Submit', 'Proceed', or 'Skip and Apply'. If it's a generic 'Update Profile' modal, look for a 'Skip and Apply' or 'Apply without updating' button.";
+
+      const aiResponse = await askAiForNextAction(page, promptContext);
+
+      if (!aiResponse || !aiResponse.actions || aiResponse.actions.length === 0) {
+        console.log('  [Naukri] AI returned no actions. Waiting...');
+        await this.sleep(2000);
         continue;
       }
 
-      // --- Look for and handle modals/dialogs ---
-      const modalAction = await page.evaluate(() => {
-        // Priority button texts to click (in order of preference)
-        const PROCEED_TEXTS = [
-          /apply\s*anyway/i,
-          /apply\s*without\s*updating/i,
-          /skip\s*and\s*apply/i,
-          /proceed\s*to\s*apply/i,
-          /save\s*&?\s*apply/i,
-          /submit\s*application/i,
-          /confirm\s*and\s*apply/i,
-          /yes,?\s*apply/i,
-        ];
-
-        const allBtns = Array.from(document.querySelectorAll('button, a[role="button"], div[role="button"]'));
-
-        for (const pattern of PROCEED_TEXTS) {
-          const btn = allBtns.find((b) => {
-            const t = (b.innerText || b.textContent || '').trim();
-            return pattern.test(t) && !b.id?.includes('company-site');
-          });
-          if (btn) {
-            btn.click();
-            return { clicked: true, text: (btn.innerText || '').trim() };
-          }
+      let isDone = false;
+      for (const act of aiResponse.actions) {
+        if (act.action === 'done') {
+          isDone = true;
+          break;
         }
-
-        // Handle "Yes" radio/checkbox for relocation questions in visible modals
-        const modals = Array.from(document.querySelectorAll(
-          '.modal, .drawer, [class*="modal"], [class*="dialog"], [class*="popup"], [class*="overlay"], form[class*="apply"]'
-        )).filter((el) => el.offsetParent !== null || el.offsetWidth > 0);
-
-        for (const modal of modals) {
-          const mText = (modal.innerText || '').toLowerCase();
-          if (/relocate|relocation|location/i.test(mText)) {
-            // Select Yes for relocation
-            const radios = Array.from(modal.querySelectorAll('input[type="radio"], [role="radio"]'));
-            for (const r of radios) {
-              const lbl = (r.closest('label')?.innerText || r.parentElement?.innerText || r.value || '').toLowerCase();
-              if (/^yes\b|\byes\b/i.test(lbl) || r.value?.toLowerCase() === 'yes') {
-                r.checked = true;
-                r.click();
-                r.dispatchEvent(new Event('change', { bubbles: true }));
-                break;
-              }
-            }
-            const chips = Array.from(modal.querySelectorAll('[class*="ssrc__radio"], [class*="chip"], label'));
-            for (const c of chips) {
-              if (/^yes$/i.test((c.innerText || '').trim())) { c.click(); break; }
-            }
-          }
-          if (/notice.*period|notice/i.test(mText)) {
-            // Select Immediate/0 days for notice period
-            const radios = Array.from(modal.querySelectorAll('input[type="radio"], [role="radio"]'));
-            for (const r of radios) {
-              const lbl = (r.closest('label')?.innerText || r.value || '').toLowerCase();
-              if (/immediate|0|zero/i.test(lbl)) {
-                r.checked = true;
-                r.click();
-                r.dispatchEvent(new Event('change', { bubbles: true }));
-                break;
-              }
-            }
-          }
+        if (act.action === 'error') {
+          console.log(`  [Naukri] AI reported error: ${aiResponse.reasoning}`);
+          return { done: true, result: 'unconfirmed' };
         }
-
-        return { clicked: false };
-      }).catch(() => ({ clicked: false }));
-
-      if (modalAction.clicked) {
-        console.log(`  [Naukri] ✅ Clicked modal button: "${modalAction.text}"`);
-        await this.sleep(2000); // wait for page to process the click
-        continue; // re-check success in next loop iteration
+        await executeAiAction(page, act);
+        await this.sleep(1500);
       }
 
-      // --- No recognizable modal, no success, no chatbot --- give it one more wait
-      await this.sleep(1500);
+      if (isDone || await this.isPageShowingSuccess(page)) {
+        return { done: true, result: 'success' };
+      }
     }
 
     // Final check after all loops
     if (await this.isPageShowingSuccess(page)) return { done: true, result: 'success' };
     return { done: true, result: 'unconfirmed' };
   }
-
   // ── Process a single job listing ─────────────────────────────────────────
   async processJob(context, page, job) {
     // Pre-navigation company check
@@ -814,8 +754,8 @@ class NaukriApplicant {
             }
 
             // ── Pre-checks ───────────────────────────────────────────────
-            if (tracker.has(job.url)) {
-              console.log(`  ⏩ [Duplicate] Already tracked: ${job.title} @ ${job.company}`);
+            if (tracker.hasApplied(job.url)) {
+              console.log(`  ⏩ [Already Applied] Previously applied: ${job.title} @ ${job.company}`);
               continue;
             }
             if (this.isBlacklistedCompany(job.company, job.title, job.url)) {
