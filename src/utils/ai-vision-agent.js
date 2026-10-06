@@ -56,31 +56,34 @@ async function askAiForNextAction(page, contextStr = '') {
 
     try {
         // 1. Extract simplified interactive DOM and annotate it for the AI
-        const interactiveDom = await page.evaluate(() => {
-            let result = [];
-            let id = 1;
-            
-            // Clean up any old AI attributes
-            document.querySelectorAll('[data-ai-id]').forEach(el => el.removeAttribute('data-ai-id'));
-
-            const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"]');
-            for (const el of elements) {
-                const rect = el.getBoundingClientRect();
-                // Skip invisible elements
-                if (rect.width === 0 || rect.height === 0 || el.disabled || getComputedStyle(el).visibility === 'hidden') {
-                    continue;
-                }
-                
-                const aiId = `ai-node-${id++}`;
-                el.setAttribute('data-ai-id', aiId);
-
-                const tag = el.tagName.toLowerCase();
-                const text = (el.innerText || el.value || el.placeholder || el.getAttribute('aria-label') || '').trim().substring(0, 100);
-                
-                result.push({ id: aiId, tag, text: text.replace(/\n/g, ' '), type: el.type || '' });
+        let interactiveDom = [];
+        let globalId = 1;
+        for (const frame of page.frames()) {
+            try {
+                const frameData = await frame.evaluate((startId) => {
+                    let result = [];
+                    let id = startId;
+                    document.querySelectorAll('[data-ai-id]').forEach(el => el.removeAttribute('data-ai-id'));
+                    const elements = document.querySelectorAll('button, a, input, select, textarea, [role="button"]');
+                    for (const el of elements) {
+                        const rect = el.getBoundingClientRect();
+                        if (rect.width === 0 || rect.height === 0 || el.disabled || getComputedStyle(el).visibility === 'hidden') continue;
+                        
+                        const aiId = `ai-node-${id++}`;
+                        el.setAttribute('data-ai-id', aiId);
+                        
+                        const tag = el.tagName.toLowerCase();
+                        const text = (el.innerText || el.value || el.placeholder || el.getAttribute('aria-label') || '').trim().substring(0, 100);
+                        result.push({ id: aiId, tag, text: text.replace(/\n/g, ' '), type: el.type || '' });
+                    }
+                    return { result, nextId: id };
+                }, globalId);
+                interactiveDom.push(...frameData.result);
+                globalId = frameData.nextId;
+            } catch(e) {
+                // Cross-origin frame blocked or unavailable
             }
-            return result;
-        });
+        }
 
         if (interactiveDom.length === 0) {
             console.log('  [AI] No interactive elements found on the page.');
@@ -208,7 +211,18 @@ async function executeAiAction(page, actionObj) {
     
     if (actionObj.target_id) {
         try {
-            const locator = page.locator(`[data-ai-id="${actionObj.target_id}"]`).first();
+            let locator = null;
+            for (const frame of page.frames()) {
+                const el = frame.locator(`[data-ai-id="${actionObj.target_id}"]`).first();
+                if (await el.count().catch(() => 0) > 0) {
+                    locator = el;
+                    break;
+                }
+            }
+            if (!locator) {
+                console.log(`  [AI] ❓ Element ${actionObj.target_id} not found in any frame.`);
+                return false;
+            }
             if (await locator.isVisible().catch(() => false)) {
                 
                 if (actionObj.action === 'click') {
