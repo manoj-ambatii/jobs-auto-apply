@@ -353,23 +353,28 @@ class NaukriApplicant {
 
       if (selected) {
         await this.sleep(600);
-        // Click Send / Next / Submit / Save button inside chatbot using Playwright Locators
-        try {
-          const cb = page.locator('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]').first();
-          const btn = cb.locator('button:has-text("Save"), button:has-text("Submit"), button:has-text("Send"), button:has-text("Next"), [class*="sendMsg"], button[type="submit"], [class*="send-btn"], button.blue-btn, [class*="btn-primary"]').first();
+        await page.evaluate(() => {
+          const texts = ['save', 'submit', 'send', 'next', 'confirm'];
+          const btns = Array.from(document.querySelectorAll('button, [role="button"], a[class*="btn"]'));
+          // Only look at visible buttons
+          const visibleBtns = btns.filter(b => b.offsetWidth > 0 && b.offsetHeight > 0);
           
-          if (await btn.isVisible({ timeout: 1000 })) {
-            await btn.scrollIntoViewIfNeeded();
-            await btn.click({ timeout: 2000 });
-          } else {
-            // Fallback: search the whole page if it's rendered outside the drawer box
-            const globalBtn = page.locator('button:has-text("Save"), button:has-text("Submit")').first();
-            if (await globalBtn.isVisible({ timeout: 1000 })) {
-              await globalBtn.scrollIntoViewIfNeeded();
-              await globalBtn.click({ timeout: 2000 });
-            }
-          }
-        } catch (e) {}
+          // 1. Check for icon-only send buttons or explicit submit types
+          const iconBtn = visibleBtns.find(b => (b.className || '').match(/sendMsg|send-btn|submit/i) || b.type === 'submit');
+          if (iconBtn) { iconBtn.click(); return; }
+
+          // 2. Check for text match
+          const textBtn = visibleBtns.find(b => {
+               const t = (b.innerText || '').toLowerCase().trim();
+               return texts.some(txt => t.includes(txt));
+          });
+          if (textBtn) { textBtn.click(); return; }
+          
+          // 3. Fallback to primary styled button in the drawer
+          const primaryBtn = visibleBtns.find(b => (b.className || '').match(/blue-btn|btn-primary/i));
+          if (primaryBtn) { primaryBtn.click(); }
+        }).catch(() => {});
+        
         await this.sleep(1000);
         continue;
       }
@@ -402,23 +407,24 @@ class NaukriApplicant {
         await this.sleep(500);
         await page.keyboard.press('Enter').catch(() => {});
         await this.sleep(500);
-        // Also try clicking send/save button using Playwright Locators
-        try {
-          const cb = page.locator('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]').first();
-          const btn = cb.locator('button:has-text("Save"), button:has-text("Submit"), button:has-text("Send"), button:has-text("Next"), [class*="sendMsg"], button[type="submit"], [class*="send-btn"], button.blue-btn, [class*="btn-primary"]').first();
+        await page.evaluate(() => {
+          const texts = ['save', 'submit', 'send', 'next', 'confirm'];
+          const btns = Array.from(document.querySelectorAll('button, [role="button"], a[class*="btn"]'));
+          const visibleBtns = btns.filter(b => b.offsetWidth > 0 && b.offsetHeight > 0);
           
-          if (await btn.isVisible({ timeout: 1000 })) {
-            await btn.scrollIntoViewIfNeeded();
-            await btn.click({ timeout: 2000 });
-          } else {
-            // Fallback: search the whole page if it's rendered outside the drawer box
-            const globalBtn = page.locator('button:has-text("Save"), button:has-text("Submit")').first();
-            if (await globalBtn.isVisible({ timeout: 1000 })) {
-              await globalBtn.scrollIntoViewIfNeeded();
-              await globalBtn.click({ timeout: 2000 });
-            }
-          }
-        } catch (e) {}
+          const iconBtn = visibleBtns.find(b => (b.className || '').match(/sendMsg|send-btn|submit/i) || b.type === 'submit');
+          if (iconBtn) { iconBtn.click(); return; }
+
+          const textBtn = visibleBtns.find(b => {
+               const t = (b.innerText || '').toLowerCase().trim();
+               return texts.some(txt => t.includes(txt));
+          });
+          if (textBtn) { textBtn.click(); return; }
+          
+          const primaryBtn = visibleBtns.find(b => (b.className || '').match(/blue-btn|btn-primary/i));
+          if (primaryBtn) { primaryBtn.click(); }
+        }).catch(() => {});
+        
         await this.sleep(800);
       } else {
         // Nothing matched — wait one more cycle, chatbot may still be loading

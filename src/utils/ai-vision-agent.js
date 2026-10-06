@@ -124,10 +124,27 @@ Evaluate the screenshot and the DOM. Return your reasoning and the array of acti
 `;
         
         console.log('  [AI] 🤔 Asking Gemini 3.8 Flash to analyze the entire screen...');
-        const result = await model.generateContent([
-            prompt, 
-            { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
-        ]);
+        
+        let result;
+        let retries = 3;
+        while (retries > 0) {
+            try {
+                result = await model.generateContent([
+                    prompt, 
+                    { inlineData: { data: screenshotBase64, mimeType: 'image/jpeg' } }
+                ]);
+                break; // success
+            } catch (apiErr) {
+                if (apiErr.message.includes('503') || apiErr.message.includes('429')) {
+                    retries--;
+                    if (retries === 0) throw apiErr;
+                    console.log(`  [AI] ⚠️ Gemini API Overloaded (503/429). Retrying in 10 seconds... (${retries} retries left)`);
+                    await new Promise(r => setTimeout(r, 10000));
+                } else {
+                    throw apiErr;
+                }
+            }
+        }
 
         const responseData = JSON.parse(result.response.text());
         console.log(`  [AI] 🧠 Reasoning: ${responseData.reasoning}`);
