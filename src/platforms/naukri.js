@@ -451,59 +451,276 @@ class NaukriApplicant {
    * confirmed success state or we exhaust retries.
    */
   async handlePostApplyModals(page) {
-    const MAX_MODAL_LOOPS = 12;
+    const MAX_MODAL_LOOPS = 8;
 
     for (let loop = 0; loop < MAX_MODAL_LOOPS; loop++) {
-      await this.sleep(3000); // Wait for modal animations
+      await this.sleep(2500); // wait for modal/page to settle
 
-      // --- Check for quota error ---
+      // --- Check for quota error first ---
       const bodyText = await page.evaluate(() => document.body ? document.body.innerText : '').catch(() => '');
-      if (/(daily\s*limit|quota\s*exceeded|maximum\s*applications|can't\s*apply\s*anymore)/i.test(bodyText)) {
-         return { done: true, result: 'quota_exceeded' };
-      }
+      if (matchesAny(bodyText, QUOTA_PATTERNS)) return { done: true, result: 'quota_exceeded' };
 
-      // --- Check for success ---
-      if (await this.isPageShowingSuccess(page)) return { done: true, result: 'success' };
+      // --- Check for confirmed success ---
+      if (matchesAny(bodyText, SUCCESS_PATTERNS)) return { done: true, result: 'success' };
       const btnApplied = await page.evaluate(() =>
-        Array.from(document.querySelectorAll('button, a, div, span')).some(el => /^applied$/i.test((el.innerText || '').trim()))
+        Array.from(document.querySelectorAll('button, a, div, span'))
+          .some((el) => /^applied$/i.test((el.innerText || '').trim()))
       ).catch(() => false);
       if (btnApplied) return { done: true, result: 'success' };
 
-      console.log(`  [Naukri] 🤖 Engaging Live AI Vision for Apply Modal (Iteration ${loop + 1})...`);
-      
-      const promptContext = "You are navigating a Naukri.com modal dialog or screening chatbot. Answer questions and click 'Save', 'Submit', 'Proceed', or 'Skip and Apply'. If the modal disappears or you see a success message indicating the application is complete, return 'done'.";
-      
-      const aiResponse = await askAiForNextAction(page, promptContext);
-      
-      if (!aiResponse || !aiResponse.actions || aiResponse.actions.length === 0) {
-        console.log('  [Naukri] AI returned no actions. Waiting...');
-        await this.sleep(2000);
+      // --- Check if chatbot opened ---
+      const chatbotOpen = await page.evaluate(() =>
+        !!document.querySelector('.chatbot_DrawerContentWrapper, [class*="chatbot_Drawer"], [class*="chatbot"]')
+      ).catch(() => false);
+      if (chatbotOpen) {
+        const cbResult = await this.handleChatbot(page);
+        if (cbResult === 'success') return { done: true, result: 'success' };
+        // Chatbot closed but no confirm - continue outer loop to check for other modals
         continue;
       }
 
-      let isDone = false;
-      for (const act of aiResponse.actions) {
-        if (act.action === 'done') {
-           isDone = true;
-           break;
+      // --- Look for and handle modals/dialogs ---
+      const modalAction = await page.evaluate(() => {
+        // Priority button texts to click (in order of preference)
+        const PROCEED_TEXTS = [
+          /apply\s*anyway/i,
+          /apply\s*without\s*updating/i,
+          /skip\s*and\s*apply/i,
+          /proceed\s*to\s*apply/i,
+          /save\s*&?\s*apply/i,
+          /submit\s*application/i,
+          /confirm\s*and\s*apply/i,
+          /yes,?\s*apply/i,
+        ];
+
+        const allBtns = Array.from(document.querySelectorAll('button, a[role="button"], div[role="button"]'));
+
+        for (const pattern of PROCEED_TEXTS) {
+          const btn = allBtns.find((b) => {
+            const t = (b.innerText || b.textContent || '').trim();
+            return pattern.test(t) && !b.id?.includes('company-site');
+          });
+          if (btn) {
+            btn.click();
+            return { clicked: true, text: (btn.innerText || '').trim() };
+          }
         }
-        if (act.action === 'error') {
-           console.log(`  [Naukri] AI Error: ${aiResponse.reasoning}`);
-           return { done: true, result: 'unconfirmed' };
+
+        // Handle "Yes" radio/checkbox for relocation questions in visible modals
+        const modals = Array.from(document.querySelectorAll(
+          '.modal, .drawer, [class*="modal"], [class*="dialog"], [class*="popup"], [class*="overlay"], form[class*="apply"]'
+        )).filter((el) => el.offsetParent !== null || el.offsetWidth > 0);
+
+        for (const modal of modals) {
+          const mText = (modal.innerText || '').toLowerCase();
+          if (/relocate|relocation|location/i.test(mText)) {
+            // Select Yes for relocation
+            const radios = Array.from(modal.querySelectorAll('input[type="radio"], [role="radio"]'));
+            for (const r of radios) {
+              const lbl = (r.closest('label')?.innerText || r.parentElement?.innerText || r.value || '').toLowerCase();
+              if (/^yes\b|\byes\b/i.test(lbl) || r.value?.toLowerCase() === 'yes') {
+                r.checked = true;
+                r.click();
+                r.dispatchEvent(new Event('change', { bubbles: true }));
+                break;
+              }
+            }
+            const chips = Array.from(modal.querySelectorAll('[class*="ssrc__radio"], [class*="chip"], label'));
+            for (const c of chips) {
+              if (/^yes$/i.test((c.innerText || '').trim())) { c.click(); break; }
+            }
+          }
+          if (/notice.*period|notice/i.test(mText)) {
+            // Select Immediate/0 days for notice period
+            const radios = Array.from(modal.querySelectorAll('input[type="radio"], [role="radio"]'));
+            for (const r of radios) {
+              const lbl = (r.closest('label')?.innerText || r.value || '').toLowerCase();
+              if (/immediate|0|zero/i.test(lbl)) {
+                r.checked = true;
+                r.click();
+                r.dispatchEvent(new Event('change', { bubbles: true }));
+                break;
+              }
+            }
+          }
         }
-        await executeAiAction(page, act);
-        await this.sleep(1500);
+
+        return { clicked: false };
+      }).catch(() => ({ clicked: false }));
+
+      if (modalAction.clicked) {
+        console.log(`  [Naukri] ✅ Clicked modal button: "${modalAction.text}"`);
+        await this.sleep(2000); // wait for page to process the click
+        continue; // re-check success in next loop iteration
       }
 
-      if (isDone || await this.isPageShowingSuccess(page)) {
-          return { done: true, result: 'success' };
-      }
+      // --- No recognizable modal, no success, no chatbot --- give it one more wait
+      await this.sleep(1500);
     }
-    
+
+    // Final check after all loops
+    if (await this.isPageShowingSuccess(page)) return { done: true, result: 'success' };
     return { done: true, result: 'unconfirmed' };
   }
 
-  // ── Main run loop ──
+  // ── Process a single job listing ─────────────────────────────────────────
+  async processJob(context, page, job) {
+    // Pre-navigation company check
+    if (this.isBlacklistedCompany(job.company, job.title, job.url)) {
+      return { status: 'skipped', notes: `Excluded company: ${job.company} (blacklisted)` };
+    }
+
+    // Navigate to job page
+    try {
+      await page.goto(job.url, { waitUntil: 'domcontentloaded', timeout: 35000 });
+    } catch (navErr) {
+      console.log(`  [Naukri] Navigation error: ${navErr.message}`);
+      return { status: 'failed', notes: `Navigation failed: ${navErr.message}` };
+    }
+    await this.sleep(3000); // allow lazy-loaded buttons to render
+
+    // On-page company check (may differ from search card)
+    const onPageCompany = await page.evaluate(() => {
+      const el = document.querySelector(
+        'a.subTitle, a.comp-name, .companyInfo a, .comp-dtls a, ' +
+        '.styles_job-header-comp-name__MQU09, [class*="comp-name"]'
+      );
+      return el ? el.innerText.trim() : '';
+    }).catch(() => '');
+    if (onPageCompany && this.isBlacklistedCompany(onPageCompany, job.title, job.url)) {
+      return { status: 'skipped', notes: `Excluded company: ${onPageCompany} (blacklisted)` };
+    }
+
+    // Detect page buttons
+    const info = await page.evaluate(() => {
+      const allBtns = Array.from(document.querySelectorAll('button, a, div'));
+
+      const applyBtn = document.getElementById('apply-button') ||
+        allBtns.find((el) => {
+          const t = (el.innerText || el.getAttribute('title') || '').trim().toLowerCase();
+          return t === 'apply' || t === 'apply now' || el.classList.contains('apply-button');
+        });
+
+      const companySiteBtn = document.getElementById('company-site-button') ||
+        allBtns.find((el) =>
+          /apply on company site|apply on website|company site|external site/i.test(
+            el.innerText || el.getAttribute('title') || ''
+          )
+        );
+
+      const alreadyApplied =
+        !!document.querySelector('[class*="already-applied"]') ||
+        allBtns.some((el) =>
+          /^applied$/i.test((el.innerText || '').trim()) ||
+          /already applied/i.test(el.innerText || '')
+        );
+
+      return {
+        hasApply: !!applyBtn,
+        hasCompany: !!companySiteBtn,
+        alreadyApplied,
+      };
+    }).catch(() => ({ hasApply: false, hasCompany: false, alreadyApplied: false }));
+
+    if (info.alreadyApplied) {
+      return { status: 'already_applied', notes: 'Already applied to this job previously' };
+    }
+
+    // ── External company portal ──────────────────────────────────────────
+    if (!info.hasApply && info.hasCompany) {
+      console.log('  [Naukri] External company site detected. Handing off to ExternalApplicant...');
+      const extResult = await this.externalApplicant.applyFromNaukri(context, page, job);
+      return extResult;
+    }
+
+    // ── Both buttons missing ─────────────────────────────────────────────
+    if (!info.hasApply && !info.hasCompany) {
+      // Retry once – some pages lazy-load buttons
+      await this.sleep(3000);
+      const retryInfo = await page.evaluate(() => {
+        const allBtns = Array.from(document.querySelectorAll('button, a'));
+        const applyBtn = document.getElementById('apply-button') ||
+          allBtns.find((el) => {
+            const t = (el.innerText || el.getAttribute('title') || '').trim().toLowerCase();
+            return t === 'apply' || t === 'apply now' || el.classList.contains('apply-button');
+          });
+        const companySiteBtn = document.getElementById('company-site-button') ||
+          allBtns.find((el) =>
+            /apply on company site|apply on website|company site/i.test(el.innerText || el.getAttribute('title') || '')
+          );
+        return { hasApply: !!applyBtn, hasCompany: !!companySiteBtn };
+      }).catch(() => ({ hasApply: false, hasCompany: false }));
+
+      if (retryInfo.hasCompany) {
+        console.log('  [Naukri] External site found on retry. Handing off...');
+        const extResult = await this.externalApplicant.applyFromNaukri(context, page, job);
+        return extResult;
+      }
+      if (!retryInfo.hasApply) {
+        return { status: 'skipped', notes: 'No apply button found (page may require login or job expired)' };
+      }
+    }
+
+    // ── Skip in-platform if daily quota already hit ───────────────────────
+    if (this.naukriQuotaExceeded) {
+      return { status: 'skipped', notes: 'In-platform daily quota reached; only external sites processed' };
+    }
+
+    // ── Setup popup listener BEFORE clicking Apply ────────────────────────
+    const popupPromise = context.waitForEvent('page', { timeout: 6000 }).catch(() => null);
+
+    // Click the Apply button
+    const clickedApply = await page.evaluate(() => {
+      const btn = document.getElementById('apply-button') ||
+        Array.from(document.querySelectorAll('button, a')).find((el) => {
+          const t = (el.innerText || el.getAttribute('title') || '').trim().toLowerCase();
+          return t === 'apply' || t === 'apply now' || el.classList.contains('apply-button');
+        });
+      if (btn) { btn.click(); return true; }
+      return false;
+    }).catch(() => false);
+
+    if (!clickedApply) {
+      return { status: 'skipped', notes: 'Apply button click failed' };
+    }
+
+    // ── Check if a popup (new tab) was opened ─────────────────────────────
+    const externalPopup = await popupPromise;
+    if (externalPopup) {
+      console.log('  [Naukri] Apply button opened an external popup window!');
+      try {
+        await externalPopup.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+        await this.sleep(2000);
+        const extResult = await this.externalApplicant.executeApplication(externalPopup, job);
+        await externalPopup.close().catch(() => {});
+        return extResult;
+      } catch (popErr) {
+        await externalPopup.close().catch(() => {});
+        return { status: 'failed', notes: `Popup apply error: ${popErr.message}` };
+      }
+    }
+
+    // ── Handle all post-click modals and wait for server confirmation ─────
+    console.log('  [Naukri] Apply clicked. Waiting for confirmation / modals...');
+    const modalResult = await this.handlePostApplyModals(page);
+
+    if (modalResult.result === 'quota_exceeded') {
+      this.naukriQuotaExceeded = true;
+      return { status: 'quota_exceeded', notes: 'Naukri daily apply quota reached' };
+    }
+
+    if (modalResult.result === 'success') {
+      return { status: 'applied', notes: 'Naukri application confirmed by server' };
+    }
+
+    // result === 'unconfirmed' → we never got a success banner
+    return {
+      status: 'skipped',
+      notes: 'Apply clicked but no server confirmation received (modal may have needed manual action)',
+    };
+  }
+
+  // ── Main run loop ─────────────────────────────────────────────────────────
   async run() {
     console.log('\n======================================================');
     console.log('🚀 Starting Naukri Auto-Apply');
