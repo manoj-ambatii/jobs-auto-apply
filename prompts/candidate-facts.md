@@ -11,7 +11,7 @@ This file is the single source of truth for screening-question answers used by b
 - **Phone:** +91 9347946872
 - **Current location:** Hyderabad, India
 - **LinkedIn:** https://www.linkedin.com/in/manojambati2469/
-- **GitHub:** https://github.com/manoj-voltuswave
+- **GitHub:** https://github.com/manoj-ambatii
 - **Date of birth:** 09 March 2001 (DD/MM/YYYY: `09/03/2001`, ISO: `2001-03-09`)
 - **Gender:** Male
 - **Marital status:** Single
