@@ -8,7 +8,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const RESUME_PATH = process.env.RESUME_FILE
   ? path.resolve(ROOT_DIR, process.env.RESUME_FILE)
-  : path.join(ROOT_DIR, 'resume', 'Manoj_Ambati_Resume.pdf');
+  : path.join(ROOT_DIR, 'resume', 'Manoj_Ambati_Resume_v3.pdf');
 
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });

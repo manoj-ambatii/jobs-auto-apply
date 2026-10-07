@@ -75,8 +75,8 @@ class ExternalApplicant {
     
     const candidates = [
       envPath,
+      path.resolve(__dirname, '../../resume/Manoj_Ambati_Resume_v3.pdf'),
       path.resolve(__dirname, '../../resume/Manoj_Ambati_Resume_v2.pdf'),
-      path.resolve(__dirname, '../../resume/Manoj_Ambati_Java_Full_Stack_Resume.pdf'),
       path.resolve(__dirname, '../../resume/Manoj_Ambati_Resume.pdf'),
     ].filter(Boolean); // removes null if envPath wasn't set
 

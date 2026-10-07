@@ -32,7 +32,7 @@ Follow these instructions when driving the browser through Playwright MCP to sea
 3. Click "Easy Apply".
 4. Step through each modal screen:
    - Check and fill phone number if empty.
-   - Attach resume from `resume/Manoj_Ambati_Resume.pdf` if requested.
+   - Attach resume from `resume/Manoj_Ambati_Resume_v3.pdf` if requested.
    - Answer screening questions using `prompts/candidate-facts.md` (2 years experience for Java, Spring Boot, React, Node, etc.; 4.2 current CTC, 10 expected CTC, immediate joiner).
    - Click "Next" or "Review".
    - Uncheck "Follow company" on final step.
